@@ -1,0 +1,52 @@
+import Link from "next/link";
+import { createClient } from "@/lib/supabase/server";
+import { signOut } from "@/app/auth/actions";
+
+const LINKS = [
+  { href: "/specialties", label: "All Specialties" },
+  { href: "/imt-likelihood", label: "Likelihood" },
+  { href: "/portfolio/imt", label: "Portfolio" },
+];
+
+export default async function NavBar() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  return (
+    <header className="border-b-[0.5px] border-graphite bg-void">
+      <nav className="mx-auto flex max-w-[1200px] items-center gap-6 px-6 py-4">
+        <Link href="/" className="text-[16px] font-[510] tracking-[-0.011em] text-paper">
+          Shortlisted
+        </Link>
+        <div className="flex flex-1 gap-2">
+          {LINKS.map((l) => (
+            <Link
+              key={l.href}
+              href={l.href}
+              className="rounded-buttons px-3 py-2 text-[13px] font-normal text-mist transition-colors hover:text-paper"
+            >
+              {l.label}
+            </Link>
+          ))}
+        </div>
+        {user ? (
+          <form action={signOut} className="flex items-center gap-3 text-[13px]">
+            <span className="text-fog">{user.email}</span>
+            <button type="submit" className="text-mist transition-colors hover:text-paper">
+              Sign out
+            </button>
+          </form>
+        ) : (
+          <Link
+            href="/login"
+            className="rounded-pills bg-bone px-4 py-2 text-[13px] font-[510] text-void transition-opacity hover:opacity-90"
+          >
+            Sign in
+          </Link>
+        )}
+      </nav>
+    </header>
+  );
+}

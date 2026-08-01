@@ -1,0 +1,479 @@
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
+import { isDemoMode } from "@/lib/demoMode";
+import { UK_MEDICAL_SCHOOLS } from "@/lib/data/uk-medical-schools";
+import {
+  ONBOARDING_ROLES,
+  DOCTOR_STAGES,
+  SPECIALTY_TRAINING_YEARS,
+  MED_SCHOOL_YEARS,
+  APPLICANT_INTENTS,
+  type OnboardingRole,
+} from "@/lib/data/onboarding-options";
+import { UK_DEANERIES } from "@/lib/data/deaneries";
+import { PRIORITY_SPECIALTIES, SCORING_COVERAGE } from "@/lib/data/all-specialty-ratios";
+
+const SPECIALTY_OPTIONS = [...PRIORITY_SPECIALTIES, "Other", "Not sure yet"];
+const CURRENT_SPECIALTY_OPTIONS = [...PRIORITY_SPECIALTIES, "Other"];
+
+type Role = OnboardingRole["value"];
+
+type FormState = {
+  role: Role | null;
+  medSchool: string;
+  yearOfStudy: string;
+  preferredRegion: string;
+  grade: string;
+  currentSpecialty: string;
+  currentSpecialtyYear: string;
+  hospitalTrust: string;
+  department: string;
+  targetSpecialty: string;
+  intent: string;
+};
+
+const EMPTY_FORM: FormState = {
+  role: null,
+  medSchool: "",
+  yearOfStudy: "",
+  preferredRegion: "",
+  grade: "",
+  currentSpecialty: "",
+  currentSpecialtyYear: "",
+  hospitalTrust: "",
+  department: "",
+  targetSpecialty: "",
+  intent: "",
+};
+
+function stepsForRole(role: Role | null, grade: string): string[] {
+  if (role === "medical_student") {
+    return ["role", "med_school", "year_of_study", "target_specialty", "intent"];
+  }
+  if (role === "doctor_applicant") {
+    const base = ["role", "preferred_region", "grade"];
+    if (grade === "IN_SPECIALTY_TRAINING") base.push("current_specialty", "current_specialty_year");
+    return [...base, "hospital_trust", "target_specialty", "intent"];
+  }
+  if (role === "consultant_registrar") {
+    return ["role", "preferred_region", "hospital_trust", "department"];
+  }
+  return ["role"];
+}
+
+function guessRoleFromEmail(email: string | undefined): Role | null {
+  if (!email) return null;
+  const domain = email.split("@")[1]?.toLowerCase() ?? "";
+  if (domain === "ac.uk" || domain.endsWith(".ac.uk")) return "medical_student";
+  return null;
+}
+
+const CARD = "rounded-cards bg-carbon p-8 shadow-subtle";
+const OPTION_BUTTON =
+  "flex w-full items-center justify-between rounded-inputs border p-4 text-left text-body-sm transition-colors";
+const SELECT_CLASS =
+  "mt-1 w-full rounded-inputs border border-white/[0.08] bg-white/[0.02] px-[14px] py-[12px] text-[14px] text-mist focus:border-mist focus:outline-none";
+
+export default function OnboardingWizard() {
+  const supabase = useMemo(() => createClient(), []);
+  const router = useRouter();
+  const [stepIndex, setStepIndex] = useState(0);
+  const [form, setForm] = useState<FormState>(EMPTY_FORM);
+  const [email, setEmail] = useState<string | undefined>();
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [done, setDone] = useState(false);
+  const [demo, setDemo] = useState(false);
+
+  useEffect(() => {
+    async function init() {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) {
+        if (isDemoMode()) {
+          setDemo(true);
+          setEmail("demo@shortlisted.app");
+          setLoading(false);
+          return;
+        }
+        router.replace("/login");
+        return;
+      }
+      setEmail(user.email);
+      setForm((prev) => ({ ...prev, role: prev.role ?? guessRoleFromEmail(user.email) }));
+      setLoading(false);
+    }
+    init();
+  }, [supabase, router]);
+
+  const steps = stepsForRole(form.role, form.grade);
+  const currentStep = steps[Math.min(stepIndex, steps.length - 1)];
+  const isLastStep = stepIndex >= steps.length - 1;
+
+  function update<K extends keyof FormState>(key: K, value: FormState[K]) {
+    setForm((prev) => ({ ...prev, [key]: value }));
+  }
+
+  function canAdvance(): boolean {
+    switch (currentStep) {
+      case "role":
+        return form.role !== null;
+      case "med_school":
+        return form.medSchool !== "";
+      case "year_of_study":
+        return form.yearOfStudy !== "";
+      case "preferred_region":
+        return form.preferredRegion !== "";
+      case "grade":
+        return form.grade !== "";
+      case "current_specialty":
+        return form.currentSpecialty !== "";
+      case "current_specialty_year":
+        return form.currentSpecialtyYear !== "";
+      case "hospital_trust":
+        return true; // optional / skippable
+      case "department":
+        return form.department.trim() !== "";
+      case "target_specialty":
+        return form.targetSpecialty !== "";
+      case "intent":
+        return form.intent !== "";
+      default:
+        return false;
+    }
+  }
+
+  async function handleNext() {
+    if (isLastStep) {
+      await handleSubmit();
+      return;
+    }
+    setStepIndex((i) => i + 1);
+  }
+
+  function handleBack() {
+    setStepIndex((i) => Math.max(0, i - 1));
+  }
+
+  async function handleSubmit() {
+    setSaving(true);
+
+    if (demo) {
+      // Demo mode: walk through the real flow and routing, but there's no real user to
+      // attach data to, so skip the write rather than fail silently against RLS.
+      setSaving(false);
+    } else {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const inSpecialtyTraining = form.role === "doctor_applicant" && form.grade === "IN_SPECIALTY_TRAINING";
+
+      await supabase.from("profiles").upsert({
+        id: user.id,
+        role: form.role,
+        med_school: form.role === "medical_student" ? form.medSchool : null,
+        year_of_study: form.role === "medical_student" ? form.yearOfStudy : null,
+        preferred_region: form.role !== "medical_student" ? form.preferredRegion : null,
+        grade: form.role === "doctor_applicant" ? form.grade : null,
+        current_specialty: inSpecialtyTraining ? form.currentSpecialty : null,
+        current_specialty_year: inSpecialtyTraining ? form.currentSpecialtyYear : null,
+        hospital_trust: form.role !== "medical_student" ? form.hospitalTrust || null : null,
+        department: form.role === "consultant_registrar" ? form.department : null,
+        target_specialty: form.role !== "consultant_registrar" ? form.targetSpecialty : null,
+        intent: form.role !== "consultant_registrar" ? form.intent : null,
+        onboarding_completed_at: new Date().toISOString(),
+      });
+
+      setSaving(false);
+    }
+
+    if (form.role === "consultant_registrar") {
+      setDone(true);
+      return;
+    }
+
+    // Only route into a specialty's own tool if one actually exists for it — otherwise fall
+    // back to the all-specialty ratios page instead of a mismatched or missing tool.
+    const coverage = form.targetSpecialty ? SCORING_COVERAGE[form.targetSpecialty] : undefined;
+
+    if (form.intent === "check_likelihood") {
+      router.push(coverage?.likelihoodHref ?? "/specialties");
+    } else if (form.intent === "score_portfolio") {
+      router.push(coverage?.portfolioHref ?? "/specialties");
+    } else {
+      router.push("/");
+    }
+  }
+
+  if (loading) {
+    return <div className={`${CARD} mt-8`}>Loading…</div>;
+  }
+
+  if (done) {
+    return (
+      <div className={`${CARD} mt-8`}>
+        <h2 className="text-[17px] font-[510] text-paper">You&apos;re on the list</h2>
+        <p className="mt-2 text-body-sm text-fog">
+          The opportunity-posting marketplace isn&apos;t live yet — we&apos;ll email {email} the
+          moment it opens for {form.hospitalTrust || "your trust"}.
+        </p>
+        <button
+          onClick={() => router.push("/")}
+          className="mt-6 rounded-buttons bg-acid-lime px-4 py-[10px] text-[14px] font-[510] tracking-[-0.011em] text-void transition-opacity hover:opacity-90"
+        >
+          Go to Shortlisted →
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mt-8">
+      {demo && (
+        <p className="mb-2 inline-block rounded-badges bg-acid-lime/15 px-[6px] text-label text-acid-lime">
+          Demo mode — nothing here is saved
+        </p>
+      )}
+      <p className="text-caption text-ash">
+        Step {stepIndex + 1} of {steps.length}
+      </p>
+
+      <div className={`${CARD} mt-2`}>
+        {currentStep === "role" && (
+          <StepShell question="Are you a medical student or a doctor?">
+            <div className="space-y-2">
+              {ONBOARDING_ROLES.map((r) => (
+                <button
+                  key={r.value}
+                  onClick={() => update("role", r.value)}
+                  className={`${OPTION_BUTTON} ${
+                    form.role === r.value ? "border-acid-lime bg-acid-lime/10" : "border-graphite hover:border-smoke"
+                  }`}
+                >
+                  <span>
+                    <span className="block font-[510] text-paper">{r.label}</span>
+                    <span className="block text-caption text-fog">{r.description}</span>
+                  </span>
+                </button>
+              ))}
+            </div>
+          </StepShell>
+        )}
+
+        {currentStep === "med_school" && (
+          <StepShell question="Which medical school?">
+            <select
+              className={SELECT_CLASS}
+              value={form.medSchool}
+              onChange={(e) => update("medSchool", e.target.value)}
+            >
+              <option value="" className="bg-carbon">
+                Select your medical school…
+              </option>
+              {UK_MEDICAL_SCHOOLS.map((s) => (
+                <option key={s} value={s} className="bg-carbon">
+                  {s}
+                </option>
+              ))}
+            </select>
+          </StepShell>
+        )}
+
+        {currentStep === "year_of_study" && (
+          <StepShell question="What year are you in?">
+            <div className="grid grid-cols-3 gap-2">
+              {MED_SCHOOL_YEARS.map((y) => (
+                <button
+                  key={y}
+                  onClick={() => update("yearOfStudy", y)}
+                  className={`${OPTION_BUTTON} justify-center ${
+                    form.yearOfStudy === y ? "border-acid-lime bg-acid-lime/10 text-paper" : "border-graphite text-mist hover:border-smoke"
+                  }`}
+                >
+                  {y === "Intercalating" ? y : `Year ${y}`}
+                </button>
+              ))}
+            </div>
+          </StepShell>
+        )}
+
+        {currentStep === "preferred_region" && (
+          <StepShell question="Which deanery / region are you in?">
+            <select
+              className={SELECT_CLASS}
+              value={form.preferredRegion}
+              onChange={(e) => update("preferredRegion", e.target.value)}
+            >
+              <option value="" className="bg-carbon">
+                Select your deanery or region…
+              </option>
+              {UK_DEANERIES.map((r) => (
+                <option key={r} value={r} className="bg-carbon">
+                  {r}
+                </option>
+              ))}
+            </select>
+          </StepShell>
+        )}
+
+        {currentStep === "grade" && (
+          <StepShell question="What stage are you at?">
+            <div className="space-y-2">
+              {DOCTOR_STAGES.map((g) => (
+                <button
+                  key={g.value}
+                  onClick={() => update("grade", g.value)}
+                  className={`${OPTION_BUTTON} ${
+                    form.grade === g.value ? "border-acid-lime bg-acid-lime/10 text-paper" : "border-graphite text-mist hover:border-smoke"
+                  }`}
+                >
+                  {g.label}
+                </button>
+              ))}
+            </div>
+          </StepShell>
+        )}
+
+        {currentStep === "current_specialty" && (
+          <StepShell question="Which specialty are you currently training in?">
+            <select
+              className={SELECT_CLASS}
+              value={form.currentSpecialty}
+              onChange={(e) => update("currentSpecialty", e.target.value)}
+            >
+              <option value="" className="bg-carbon">
+                Select a specialty…
+              </option>
+              {CURRENT_SPECIALTY_OPTIONS.map((s) => (
+                <option key={s} value={s} className="bg-carbon">
+                  {s}
+                </option>
+              ))}
+            </select>
+          </StepShell>
+        )}
+
+        {currentStep === "current_specialty_year" && (
+          <StepShell question={`What year of ${form.currentSpecialty || "training"} are you in?`}>
+            <div className="grid grid-cols-3 gap-2">
+              {SPECIALTY_TRAINING_YEARS.map((y) => (
+                <button
+                  key={y}
+                  onClick={() => update("currentSpecialtyYear", y)}
+                  className={`${OPTION_BUTTON} justify-center ${
+                    form.currentSpecialtyYear === y ? "border-acid-lime bg-acid-lime/10 text-paper" : "border-graphite text-mist hover:border-smoke"
+                  }`}
+                >
+                  {y}
+                </button>
+              ))}
+            </div>
+          </StepShell>
+        )}
+
+        {currentStep === "hospital_trust" && (
+          <StepShell question="Which hospital or trust?" hint="Optional — helps with local opportunity matching later.">
+            <input
+              type="text"
+              value={form.hospitalTrust}
+              onChange={(e) => update("hospitalTrust", e.target.value)}
+              placeholder="e.g. Chelsea and Westminster Hospital NHS Foundation Trust"
+              className={SELECT_CLASS}
+            />
+          </StepShell>
+        )}
+
+        {currentStep === "department" && (
+          <StepShell question="Which specialty or department?">
+            <input
+              type="text"
+              value={form.department}
+              onChange={(e) => update("department", e.target.value)}
+              placeholder="e.g. Internal Medicine, General Surgery, Paediatrics"
+              className={SELECT_CLASS}
+            />
+          </StepShell>
+        )}
+
+        {currentStep === "target_specialty" && (
+          <StepShell question="What specialty are you aiming for?">
+            <select
+              className={SELECT_CLASS}
+              value={form.targetSpecialty}
+              onChange={(e) => update("targetSpecialty", e.target.value)}
+            >
+              <option value="" className="bg-carbon">
+                Select a specialty…
+              </option>
+              {SPECIALTY_OPTIONS.map((s) => (
+                <option key={s} value={s} className="bg-carbon">
+                  {s}
+                </option>
+              ))}
+            </select>
+          </StepShell>
+        )}
+
+        {currentStep === "intent" && (
+          <StepShell question="What do you want to do first?">
+            <div className="space-y-2">
+              {APPLICANT_INTENTS.map((i) => (
+                <button
+                  key={i.value}
+                  onClick={() => update("intent", i.value)}
+                  className={`${OPTION_BUTTON} ${
+                    form.intent === i.value ? "border-acid-lime bg-acid-lime/10 text-paper" : "border-graphite text-mist hover:border-smoke"
+                  }`}
+                >
+                  {i.label}
+                </button>
+              ))}
+            </div>
+          </StepShell>
+        )}
+
+        <div className="mt-8 flex items-center justify-between">
+          <button
+            onClick={handleBack}
+            disabled={stepIndex === 0}
+            className="rounded-buttons border border-graphite px-4 py-2 text-[13px] text-mist disabled:opacity-0"
+          >
+            Back
+          </button>
+          <button
+            onClick={handleNext}
+            disabled={!canAdvance() || saving}
+            className="rounded-buttons bg-acid-lime px-4 py-[10px] text-[14px] font-[510] tracking-[-0.011em] text-void transition-opacity hover:opacity-90 disabled:opacity-40"
+          >
+            {saving ? "Saving…" : isLastStep ? "Finish" : "Next"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function StepShell({
+  question,
+  hint,
+  children,
+}: {
+  question: string;
+  hint?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div>
+      <h2 className="text-[20px] font-[510] tracking-[-0.24px] text-paper">{question}</h2>
+      {hint && <p className="mt-1 text-caption text-ash">{hint}</p>}
+      <div className="mt-4">{children}</div>
+    </div>
+  );
+}

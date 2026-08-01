@@ -1,0 +1,434 @@
+[
+  {
+    "year": 2025,
+    "region": "East Midlands",
+    "acceptedCount": 91,
+    "medianRank": 1286,
+    "meanRank": 1158.6,
+    "bestRank": 44,
+    "worstRank": 1878
+  },
+  {
+    "year": 2025,
+    "region": "East of England",
+    "acceptedCount": 142,
+    "medianRank": 1122,
+    "meanRank": 1166.7,
+    "bestRank": 22,
+    "worstRank": 2009
+  },
+  {
+    "year": 2025,
+    "region": "Kent Surrey and Sussex",
+    "acceptedCount": 133,
+    "medianRank": 1243,
+    "meanRank": 1213.7,
+    "bestRank": 13,
+    "worstRank": 1917
+  },
+  {
+    "year": 2025,
+    "region": "London",
+    "acceptedCount": 277,
+    "medianRank": 348,
+    "meanRank": 396.1,
+    "bestRank": 1,
+    "worstRank": 1776
+  },
+  {
+    "year": 2025,
+    "region": "North East",
+    "acceptedCount": 78,
+    "medianRank": 1160,
+    "meanRank": 1100.4,
+    "bestRank": 23,
+    "worstRank": 1990
+  },
+  {
+    "year": 2025,
+    "region": "North West - Mersey",
+    "acceptedCount": 68,
+    "medianRank": 1171,
+    "meanRank": 1130.5,
+    "bestRank": 77,
+    "worstRank": 1890
+  },
+  {
+    "year": 2025,
+    "region": "North West - North West",
+    "acceptedCount": 104,
+    "medianRank": 831,
+    "meanRank": 909.1,
+    "bestRank": 27,
+    "worstRank": 1888
+  },
+  {
+    "year": 2025,
+    "region": "Northern Ireland",
+    "acceptedCount": 60,
+    "medianRank": 2068.5,
+    "meanRank": 1624.3,
+    "bestRank": 25,
+    "worstRank": 2154
+  },
+  {
+    "year": 2025,
+    "region": "Scotland",
+    "acceptedCount": 106,
+    "medianRank": 955,
+    "meanRank": 997.2,
+    "bestRank": 4,
+    "worstRank": 2066
+  },
+  {
+    "year": 2025,
+    "region": "South West - Peninsula",
+    "acceptedCount": 41,
+    "medianRank": 1214,
+    "meanRank": 1213,
+    "bestRank": 9,
+    "worstRank": 2022
+  },
+  {
+    "year": 2025,
+    "region": "South West - Severn",
+    "acceptedCount": 57,
+    "medianRank": 806,
+    "meanRank": 764.5,
+    "bestRank": 12,
+    "worstRank": 1922
+  },
+  {
+    "year": 2025,
+    "region": "Thames Valley",
+    "acceptedCount": 59,
+    "medianRank": 821,
+    "meanRank": 790.5,
+    "bestRank": 11,
+    "worstRank": 1632
+  },
+  {
+    "year": 2025,
+    "region": "Wales",
+    "acceptedCount": 71,
+    "medianRank": 1649,
+    "meanRank": 1383.5,
+    "bestRank": 39,
+    "worstRank": 2065
+  },
+  {
+    "year": 2025,
+    "region": "Wessex",
+    "acceptedCount": 65,
+    "medianRank": 1463,
+    "meanRank": 1323,
+    "bestRank": 57,
+    "worstRank": 1972
+  },
+  {
+    "year": 2025,
+    "region": "West Midlands",
+    "acceptedCount": 85,
+    "medianRank": 886,
+    "meanRank": 852,
+    "bestRank": 6,
+    "worstRank": 1657
+  },
+  {
+    "year": 2025,
+    "region": "Yorkshire and the Humber",
+    "acceptedCount": 153,
+    "medianRank": 1394,
+    "meanRank": 1297.9,
+    "bestRank": 19,
+    "worstRank": 2049
+  },
+  {
+    "year": 2024,
+    "region": "East Midlands",
+    "acceptedCount": 88,
+    "medianRank": 1503,
+    "meanRank": 1342,
+    "bestRank": 15,
+    "worstRank": 1948
+  },
+  {
+    "year": 2024,
+    "region": "East of England",
+    "acceptedCount": 132,
+    "medianRank": 1119,
+    "meanRank": 1021.8,
+    "bestRank": 38,
+    "worstRank": 2026
+  },
+  {
+    "year": 2024,
+    "region": "Kent Surrey and Sussex",
+    "acceptedCount": 123,
+    "medianRank": 1234,
+    "meanRank": 1203.7,
+    "bestRank": 18,
+    "worstRank": 1993
+  },
+  {
+    "year": 2024,
+    "region": "London",
+    "acceptedCount": 255,
+    "medianRank": 357,
+    "meanRank": 415.6,
+    "bestRank": 1,
+    "worstRank": 1056
+  },
+  {
+    "year": 2024,
+    "region": "North East",
+    "acceptedCount": 81,
+    "medianRank": 1094,
+    "meanRank": 1100,
+    "bestRank": 85,
+    "worstRank": 2023
+  },
+  {
+    "year": 2024,
+    "region": "North West - Mersey",
+    "acceptedCount": 70,
+    "medianRank": 1370.5,
+    "meanRank": 1229.7,
+    "bestRank": 10,
+    "worstRank": 1892
+  },
+  {
+    "year": 2024,
+    "region": "North West - North West",
+    "acceptedCount": 105,
+    "medianRank": 805,
+    "meanRank": 862,
+    "bestRank": 14,
+    "worstRank": 2136
+  },
+  {
+    "year": 2024,
+    "region": "Northern Ireland",
+    "acceptedCount": 65,
+    "medianRank": 2095,
+    "meanRank": 1642.1,
+    "bestRank": 5,
+    "worstRank": 2226
+  },
+  {
+    "year": 2024,
+    "region": "Scotland",
+    "acceptedCount": 98,
+    "medianRank": 908,
+    "meanRank": 943.5,
+    "bestRank": 35,
+    "worstRank": 1904
+  },
+  {
+    "year": 2024,
+    "region": "South West - Peninsula",
+    "acceptedCount": 43,
+    "medianRank": 1396,
+    "meanRank": 1298.8,
+    "bestRank": 178,
+    "worstRank": 2032
+  },
+  {
+    "year": 2024,
+    "region": "South West - Severn",
+    "acceptedCount": 55,
+    "medianRank": 560,
+    "meanRank": 635.4,
+    "bestRank": 47,
+    "worstRank": 1821
+  },
+  {
+    "year": 2024,
+    "region": "Thames Valley",
+    "acceptedCount": 58,
+    "medianRank": 666.5,
+    "meanRank": 738.4,
+    "bestRank": 117,
+    "worstRank": 2097
+  },
+  {
+    "year": 2024,
+    "region": "Wales",
+    "acceptedCount": 66,
+    "medianRank": 1830.5,
+    "meanRank": 1635.1,
+    "bestRank": 29,
+    "worstRank": 2119
+  },
+  {
+    "year": 2024,
+    "region": "Wessex",
+    "acceptedCount": 65,
+    "medianRank": 1464,
+    "meanRank": 1358.1,
+    "bestRank": 120,
+    "worstRank": 2008
+  },
+  {
+    "year": 2024,
+    "region": "West Midlands",
+    "acceptedCount": 109,
+    "medianRank": 1161,
+    "meanRank": 1050,
+    "bestRank": 2,
+    "worstRank": 1967
+  },
+  {
+    "year": 2024,
+    "region": "Yorkshire and the Humber",
+    "acceptedCount": 153,
+    "medianRank": 1388,
+    "meanRank": 1287.9,
+    "bestRank": 12,
+    "worstRank": 2077
+  },
+  {
+    "year": 2023,
+    "region": "East Midlands",
+    "acceptedCount": 82,
+    "medianRank": 1330.5,
+    "meanRank": 1251.6,
+    "bestRank": 133,
+    "worstRank": 2033
+  },
+  {
+    "year": 2023,
+    "region": "East of England",
+    "acceptedCount": 133,
+    "medianRank": 1278,
+    "meanRank": 1200.5,
+    "bestRank": 10,
+    "worstRank": 2134
+  },
+  {
+    "year": 2023,
+    "region": "Kent Surrey and Sussex",
+    "acceptedCount": 102,
+    "medianRank": 1147,
+    "meanRank": 1104.5,
+    "bestRank": 76,
+    "worstRank": 2038
+  },
+  {
+    "year": 2023,
+    "region": "London",
+    "acceptedCount": 250,
+    "medianRank": 322.5,
+    "meanRank": 386.8,
+    "bestRank": 1,
+    "worstRank": 2070
+  },
+  {
+    "year": 2023,
+    "region": "North East",
+    "acceptedCount": 77,
+    "medianRank": 1208,
+    "meanRank": 1227.2,
+    "bestRank": 2,
+    "worstRank": 2177
+  },
+  {
+    "year": 2023,
+    "region": "North West - Mersey",
+    "acceptedCount": 73,
+    "medianRank": 1305,
+    "meanRank": 1231.2,
+    "bestRank": 16,
+    "worstRank": 2143
+  },
+  {
+    "year": 2023,
+    "region": "North West - North West",
+    "acceptedCount": 108,
+    "medianRank": 904,
+    "meanRank": 921.4,
+    "bestRank": 23,
+    "worstRank": 2099
+  },
+  {
+    "year": 2023,
+    "region": "Northern Ireland",
+    "acceptedCount": 44,
+    "medianRank": 1343.5,
+    "meanRank": 1327.7,
+    "bestRank": 127,
+    "worstRank": 2326
+  },
+  {
+    "year": 2023,
+    "region": "Scotland",
+    "acceptedCount": 118,
+    "medianRank": 906.5,
+    "meanRank": 1000.3,
+    "bestRank": 83,
+    "worstRank": 2165
+  },
+  {
+    "year": 2023,
+    "region": "South West - Peninsula",
+    "acceptedCount": 41,
+    "medianRank": 1145,
+    "meanRank": 1107.6,
+    "bestRank": 27,
+    "worstRank": 2175
+  },
+  {
+    "year": 2023,
+    "region": "South West - Severn",
+    "acceptedCount": 56,
+    "medianRank": 615.5,
+    "meanRank": 722.3,
+    "bestRank": 15,
+    "worstRank": 2076
+  },
+  {
+    "year": 2023,
+    "region": "Thames Valley",
+    "acceptedCount": 51,
+    "medianRank": 662,
+    "meanRank": 694.4,
+    "bestRank": 3,
+    "worstRank": 1477
+  },
+  {
+    "year": 2023,
+    "region": "Wales",
+    "acceptedCount": 77,
+    "medianRank": 1409,
+    "meanRank": 1363.2,
+    "bestRank": 5,
+    "worstRank": 2249
+  },
+  {
+    "year": 2023,
+    "region": "Wessex",
+    "acceptedCount": 61,
+    "medianRank": 1259,
+    "meanRank": 1200.1,
+    "bestRank": 126,
+    "worstRank": 2103
+  },
+  {
+    "year": 2023,
+    "region": "West Midlands",
+    "acceptedCount": 100,
+    "medianRank": 1223.5,
+    "meanRank": 1150.4,
+    "bestRank": 62,
+    "worstRank": 1986
+  },
+  {
+    "year": 2023,
+    "region": "Yorkshire and the Humber",
+    "acceptedCount": 154,
+    "medianRank": 1491.5,
+    "meanRank": 1364.1,
+    "bestRank": 40,
+    "worstRank": 2208
+  }
+]
