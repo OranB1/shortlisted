@@ -5,7 +5,7 @@ import Link from "next/link";
 import type { User } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/Button";
-import { ScoreRing } from "@/components/ScoreRing";
+import { ScoreBreakdown } from "@/components/ScoreBreakdown";
 import {
   IMT_PORTFOLIO_DOMAINS,
   IMT_SELF_ASSESSMENT_MAX,
@@ -169,23 +169,25 @@ export default function PortfolioForm() {
         </span>
       </label>
 
-      <div className="sticky bottom-4 flex items-center justify-between gap-4 rounded-cards bg-obsidian p-4 shadow-xl">
-        <div className="flex items-center gap-4">
-          <ScoreRing value={total} max={IMT_MAX_WITH_BONUS} size={72} strokeWidth={6} />
-          <div>
-            <p className="text-body-sm text-fog">
+      <div className="sticky bottom-4 space-y-2">
+        <ScoreBreakdown
+          domains={IMT_PORTFOLIO_DOMAINS}
+          selected={selected}
+          total={total}
+          max={IMT_MAX_WITH_BONUS}
+          subtitle={
+            <>
               Self-assessment: {domainTotal} / {IMT_SELF_ASSESSMENT_MAX}
               {uniqueApplicant && ` + ${bonus} bonus`}
-              {user && <span className="ml-2 text-caption text-ash">{saving ? "saving…" : "saved"}</span>}
-            </p>
-            <p className="font-mono text-[24px] text-paper">
-              {total} / {IMT_MAX_WITH_BONUS}
-            </p>
-          </div>
+              {user && <span className="ml-2 text-ash">{saving ? "saving…" : "saved"}</span>}
+            </>
+          }
+        />
+        <div className="flex justify-end">
+          <Button href={`/imt-likelihood?score=${total}&year=2026`} variant="primary">
+            See likelihood →
+          </Button>
         </div>
-        <Button href={`/imt-likelihood?score=${total}&year=2026`} variant="primary">
-          See likelihood →
-        </Button>
       </div>
     </div>
   );
