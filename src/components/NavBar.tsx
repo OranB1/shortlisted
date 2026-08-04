@@ -1,12 +1,15 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { signOut } from "@/app/auth/actions";
+import { Button } from "@/components/Button";
 
 const LINKS = [
   { href: "/specialties", label: "All Specialties" },
   { href: "/imt-likelihood", label: "Likelihood" },
   { href: "/portfolio/imt", label: "Portfolio" },
   { href: "/marketplace", label: "Marketplace" },
+  { href: "/about", label: "About" },
+  { href: "/contact", label: "Contact" },
 ];
 
 export default async function NavBar() {
@@ -45,12 +48,9 @@ export default async function NavBar() {
             </form>
           </div>
         ) : (
-          <Link
-            href="/login"
-            className="rounded-pills bg-bone px-4 py-2 text-[13px] font-[510] text-void transition-opacity hover:opacity-90"
-          >
+          <Button href="/login" variant="pill" size="sm">
             Sign in
-          </Link>
+          </Button>
         )}
       </nav>
     </header>

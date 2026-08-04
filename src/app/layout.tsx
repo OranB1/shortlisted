@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import NavBar from "@/components/NavBar";
 import DemoModeButton from "@/components/DemoModeButton";
+import Footer from "@/components/Footer";
 import "./globals.css";
 
 const inter = Inter({
@@ -34,6 +35,7 @@ export default function RootLayout({
         <NavBar />
         <DemoModeButton />
         {children}
+        <Footer />
       </body>
     </html>
   );

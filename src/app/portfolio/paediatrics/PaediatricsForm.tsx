@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { ScoreRing } from "@/components/ScoreRing";
 import {
   PAEDIATRICS_PORTFOLIO_DOMAINS,
   PAEDIATRICS_MAX,
@@ -92,14 +93,17 @@ export default function PaediatricsForm() {
         </span>
       </label>
 
-      <div className="sticky bottom-4 rounded-cards bg-obsidian p-4 shadow-xl">
-        <p className="text-body-sm text-fog">
-          Shortlisting score: {domainTotal} / {PAEDIATRICS_MAX}
-          {researchBonus && ` + ${bonus} bonus`}
-        </p>
-        <p className="font-mono text-[24px] text-paper">
-          {total} / {PAEDIATRICS_MAX_WITH_BONUS}
-        </p>
+      <div className="sticky bottom-4 flex items-center gap-4 rounded-cards bg-obsidian p-4 shadow-xl">
+        <ScoreRing value={total} max={PAEDIATRICS_MAX_WITH_BONUS} size={72} strokeWidth={6} />
+        <div>
+          <p className="text-body-sm text-fog">
+            Shortlisting score: {domainTotal} / {PAEDIATRICS_MAX}
+            {researchBonus && ` + ${bonus} bonus`}
+          </p>
+          <p className="font-mono text-[24px] text-paper">
+            {total} / {PAEDIATRICS_MAX_WITH_BONUS}
+          </p>
+        </div>
       </div>
     </div>
   );

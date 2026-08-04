@@ -4,6 +4,8 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import type { User } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/client";
+import { Button } from "@/components/Button";
+import { ScoreRing } from "@/components/ScoreRing";
 import {
   IMT_PORTFOLIO_DOMAINS,
   IMT_SELF_ASSESSMENT_MAX,
@@ -167,23 +169,23 @@ export default function PortfolioForm() {
         </span>
       </label>
 
-      <div className="sticky bottom-4 flex items-center justify-between rounded-cards bg-obsidian p-4 shadow-xl">
-        <div>
-          <p className="text-body-sm text-fog">
-            Self-assessment: {domainTotal} / {IMT_SELF_ASSESSMENT_MAX}
-            {uniqueApplicant && ` + ${bonus} bonus`}
-            {user && <span className="ml-2 text-caption text-ash">{saving ? "saving…" : "saved"}</span>}
-          </p>
-          <p className="font-mono text-[24px] text-paper">
-            {total} / {IMT_MAX_WITH_BONUS}
-          </p>
+      <div className="sticky bottom-4 flex items-center justify-between gap-4 rounded-cards bg-obsidian p-4 shadow-xl">
+        <div className="flex items-center gap-4">
+          <ScoreRing value={total} max={IMT_MAX_WITH_BONUS} size={72} strokeWidth={6} />
+          <div>
+            <p className="text-body-sm text-fog">
+              Self-assessment: {domainTotal} / {IMT_SELF_ASSESSMENT_MAX}
+              {uniqueApplicant && ` + ${bonus} bonus`}
+              {user && <span className="ml-2 text-caption text-ash">{saving ? "saving…" : "saved"}</span>}
+            </p>
+            <p className="font-mono text-[24px] text-paper">
+              {total} / {IMT_MAX_WITH_BONUS}
+            </p>
+          </div>
         </div>
-        <Link
-          href={`/imt-likelihood?score=${total}&year=2026`}
-          className="rounded-buttons bg-acid-lime px-4 py-[10px] text-[14px] font-[510] tracking-[-0.011em] text-void transition-opacity hover:opacity-90"
-        >
+        <Button href={`/imt-likelihood?score=${total}&year=2026`} variant="primary">
           See likelihood →
-        </Link>
+        </Button>
       </div>
     </div>
   );
