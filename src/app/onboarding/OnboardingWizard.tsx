@@ -73,8 +73,6 @@ function guessRoleFromEmail(email: string | undefined): Role | null {
 }
 
 const CARD = "rounded-cards bg-carbon p-8 shadow-subtle";
-const OPTION_BUTTON =
-  "flex w-full items-center justify-between rounded-inputs border p-4 text-left text-body-sm transition-colors";
 const SELECT_CLASS =
   "mt-1 w-full rounded-inputs border border-white/[0.08] bg-white/[0.02] px-[14px] py-[12px] text-[14px] text-mist focus:border-mist focus:outline-none";
 
@@ -83,6 +81,8 @@ const stepVariants = {
   center: { opacity: 1, x: 0 },
   exit: (direction: number) => ({ opacity: 0, x: direction >= 0 ? -16 : 16 }),
 };
+
+const OPTION_SPRING = { type: "spring", bounce: 0.2, visualDuration: 0.3 } as const;
 
 export default function OnboardingWizard() {
   const supabase = useMemo(() => createClient(), []);
@@ -279,18 +279,17 @@ export default function OnboardingWizard() {
               <StepShell question="Are you a medical student or a doctor?">
                 <div className="space-y-2">
                   {ONBOARDING_ROLES.map((r) => (
-                    <button
+                    <OptionButton
                       key={r.value}
+                      selected={form.role === r.value}
                       onClick={() => update("role", r.value)}
-                      className={`${OPTION_BUTTON} ${
-                        form.role === r.value ? "border-acid-lime bg-acid-lime/10" : "border-graphite hover:border-smoke"
-                      }`}
+                      layoutId="role-highlight"
                     >
                       <span>
                         <span className="block font-[510] text-paper">{r.label}</span>
                         <span className="block text-caption text-fog">{r.description}</span>
                       </span>
-                    </button>
+                    </OptionButton>
                   ))}
                 </div>
               </StepShell>
@@ -319,15 +318,17 @@ export default function OnboardingWizard() {
               <StepShell question="What year are you in?">
                 <div className="grid grid-cols-3 gap-2">
                   {MED_SCHOOL_YEARS.map((y) => (
-                    <button
+                    <OptionButton
                       key={y}
+                      selected={form.yearOfStudy === y}
                       onClick={() => update("yearOfStudy", y)}
-                      className={`${OPTION_BUTTON} justify-center ${
-                        form.yearOfStudy === y ? "border-acid-lime bg-acid-lime/10 text-paper" : "border-graphite text-mist hover:border-smoke"
-                      }`}
+                      layoutId="year-highlight"
+                      center
                     >
-                      {y === "Intercalating" ? y : `Year ${y}`}
-                    </button>
+                      <span className={form.yearOfStudy === y ? "text-paper" : "text-mist"}>
+                        {y === "Intercalating" ? y : `Year ${y}`}
+                      </span>
+                    </OptionButton>
                   ))}
                 </div>
               </StepShell>
@@ -356,15 +357,14 @@ export default function OnboardingWizard() {
               <StepShell question="What stage are you at?">
                 <div className="space-y-2">
                   {DOCTOR_STAGES.map((g) => (
-                    <button
+                    <OptionButton
                       key={g.value}
+                      selected={form.grade === g.value}
                       onClick={() => update("grade", g.value)}
-                      className={`${OPTION_BUTTON} ${
-                        form.grade === g.value ? "border-acid-lime bg-acid-lime/10 text-paper" : "border-graphite text-mist hover:border-smoke"
-                      }`}
+                      layoutId="grade-highlight"
                     >
-                      {g.label}
-                    </button>
+                      <span className={form.grade === g.value ? "text-paper" : "text-mist"}>{g.label}</span>
+                    </OptionButton>
                   ))}
                 </div>
               </StepShell>
@@ -393,15 +393,15 @@ export default function OnboardingWizard() {
               <StepShell question={`What year of ${form.currentSpecialty || "training"} are you in?`}>
                 <div className="grid grid-cols-3 gap-2">
                   {SPECIALTY_TRAINING_YEARS.map((y) => (
-                    <button
+                    <OptionButton
                       key={y}
+                      selected={form.currentSpecialtyYear === y}
                       onClick={() => update("currentSpecialtyYear", y)}
-                      className={`${OPTION_BUTTON} justify-center ${
-                        form.currentSpecialtyYear === y ? "border-acid-lime bg-acid-lime/10 text-paper" : "border-graphite text-mist hover:border-smoke"
-                      }`}
+                      layoutId="specialty-year-highlight"
+                      center
                     >
-                      {y}
-                    </button>
+                      <span className={form.currentSpecialtyYear === y ? "text-paper" : "text-mist"}>{y}</span>
+                    </OptionButton>
                   ))}
                 </div>
               </StepShell>
@@ -454,15 +454,14 @@ export default function OnboardingWizard() {
               <StepShell question="What do you want to do first?">
                 <div className="space-y-2">
                   {APPLICANT_INTENTS.map((i) => (
-                    <button
+                    <OptionButton
                       key={i.value}
+                      selected={form.intent === i.value}
                       onClick={() => update("intent", i.value)}
-                      className={`${OPTION_BUTTON} ${
-                        form.intent === i.value ? "border-acid-lime bg-acid-lime/10 text-paper" : "border-graphite text-mist hover:border-smoke"
-                      }`}
+                      layoutId="intent-highlight"
                     >
-                      {i.label}
-                    </button>
+                      <span className={form.intent === i.value ? "text-paper" : "text-mist"}>{i.label}</span>
+                    </OptionButton>
                   ))}
                 </div>
               </StepShell>
@@ -488,6 +487,35 @@ export default function OnboardingWizard() {
         </div>
       </div>
     </div>
+  );
+}
+
+function OptionButton({
+  selected,
+  onClick,
+  layoutId,
+  center = false,
+  children,
+}: {
+  selected: boolean;
+  onClick: () => void;
+  layoutId: string;
+  center?: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <motion.button
+      onClick={onClick}
+      whileTap={{ scale: 0.98 }}
+      className={`relative flex w-full items-center overflow-hidden rounded-inputs border p-4 text-left text-body-sm transition-colors ${
+        center ? "justify-center" : "justify-between"
+      } ${selected ? "border-acid-lime" : "border-graphite hover:border-smoke"}`}
+    >
+      {selected && (
+        <motion.div layoutId={layoutId} transition={OPTION_SPRING} className="absolute inset-0 bg-acid-lime/10" />
+      )}
+      <span className="relative z-10">{children}</span>
+    </motion.button>
   );
 }
 
