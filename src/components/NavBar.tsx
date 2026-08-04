@@ -6,6 +6,7 @@ const LINKS = [
   { href: "/specialties", label: "All Specialties" },
   { href: "/imt-likelihood", label: "Likelihood" },
   { href: "/portfolio/imt", label: "Portfolio" },
+  { href: "/marketplace", label: "Marketplace" },
 ];
 
 export default async function NavBar() {
@@ -32,12 +33,17 @@ export default async function NavBar() {
           ))}
         </div>
         {user ? (
-          <form action={signOut} className="flex items-center gap-3 text-[13px]">
-            <span className="text-fog">{user.email}</span>
-            <button type="submit" className="text-mist transition-colors hover:text-paper">
-              Sign out
-            </button>
-          </form>
+          <div className="flex items-center gap-4 text-[13px]">
+            <Link href="/profile" className="text-mist transition-colors hover:text-paper">
+              Profile
+            </Link>
+            <form action={signOut} className="flex items-center gap-3">
+              <span className="text-fog">{user.email}</span>
+              <button type="submit" className="text-mist transition-colors hover:text-paper">
+                Sign out
+              </button>
+            </form>
+          </div>
         ) : (
           <Link
             href="/login"

@@ -17,6 +17,101 @@ export type Database = {
   }
   public: {
     Tables: {
+      opportunities: {
+        Row: {
+          created_at: string
+          deadline: string | null
+          deanery_region: string | null
+          description: string
+          estimated_commitment: string | null
+          experience_level: string | null
+          hospital_trust: string | null
+          id: string
+          min_year_of_study: string | null
+          poster_id: string
+          required_skills: string[] | null
+          specialty: string | null
+          status: string
+          task_type: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          deadline?: string | null
+          deanery_region?: string | null
+          description: string
+          estimated_commitment?: string | null
+          experience_level?: string | null
+          hospital_trust?: string | null
+          id?: string
+          min_year_of_study?: string | null
+          poster_id: string
+          required_skills?: string[] | null
+          specialty?: string | null
+          status?: string
+          task_type: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          deadline?: string | null
+          deanery_region?: string | null
+          description?: string
+          estimated_commitment?: string | null
+          experience_level?: string | null
+          hospital_trust?: string | null
+          id?: string
+          min_year_of_study?: string | null
+          poster_id?: string
+          required_skills?: string[] | null
+          specialty?: string | null
+          status?: string
+          task_type?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      opportunity_applications: {
+        Row: {
+          applicant_id: string
+          cover_note: string | null
+          created_at: string
+          id: string
+          opportunity_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          applicant_id: string
+          cover_note?: string | null
+          created_at?: string
+          id?: string
+          opportunity_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          applicant_id?: string
+          cover_note?: string | null
+          created_at?: string
+          id?: string
+          opportunity_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "opportunity_applications_opportunity_id_fkey"
+            columns: ["opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "opportunities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       portfolio_bonus_flags: {
         Row: {
           flag_key: string
@@ -76,10 +171,16 @@ export type Database = {
       }
       profiles: {
         Row: {
+          avatar_url: string | null
+          bio: string | null
           created_at: string
           current_specialty: string | null
           current_specialty_year: string | null
+          cv_filename: string | null
+          cv_uploaded_at: string | null
+          cv_url: string | null
           department: string | null
+          full_name: string | null
           grade: string | null
           hospital_trust: string | null
           id: string
@@ -93,10 +194,16 @@ export type Database = {
           year_of_study: string | null
         }
         Insert: {
+          avatar_url?: string | null
+          bio?: string | null
           created_at?: string
           current_specialty?: string | null
           current_specialty_year?: string | null
+          cv_filename?: string | null
+          cv_uploaded_at?: string | null
+          cv_url?: string | null
           department?: string | null
+          full_name?: string | null
           grade?: string | null
           hospital_trust?: string | null
           id: string
@@ -110,10 +217,16 @@ export type Database = {
           year_of_study?: string | null
         }
         Update: {
+          avatar_url?: string | null
+          bio?: string | null
           created_at?: string
           current_specialty?: string | null
           current_specialty_year?: string | null
+          cv_filename?: string | null
+          cv_uploaded_at?: string | null
+          cv_url?: string | null
           department?: string | null
+          full_name?: string | null
           grade?: string | null
           hospital_trust?: string | null
           id?: string
