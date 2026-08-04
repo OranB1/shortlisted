@@ -51,26 +51,35 @@ export default function CstForm() {
                 <p className="mb-1 text-caption font-[510] text-fog">{component.label}</p>
               )}
               <div className="space-y-1">
-                {component.bands.map((band) => (
-                  <label
-                    key={band.letter}
-                    className="flex cursor-pointer items-start gap-3 rounded-inputs border border-transparent p-2 text-body-sm hover:border-graphite"
-                  >
-                    <input
-                      type="radio"
-                      name={`${domain.id}:${component.id}`}
-                      checked={selected[`${domain.id}:${component.id}`] === band.letter}
-                      onChange={() => selectBand(domain.id, component.id, band.letter)}
-                      className="mt-0.5 accent-acid-lime"
-                    />
-                    <span className="text-mist">
-                      <span className="mr-2 inline-block w-6 shrink-0 rounded-badges bg-white/5 text-center font-mono text-label text-fog">
-                        {band.letter}
+                {component.bands.map((band) => {
+                  const isSelected = selected[`${domain.id}:${component.id}`] === band.letter;
+                  return (
+                    <label
+                      key={band.letter}
+                      className={`flex cursor-pointer items-start gap-3 rounded-inputs border p-2 text-body-sm transition-colors ${
+                        isSelected ? "border-acid-lime/30 bg-acid-lime/[0.04]" : "border-transparent hover:border-graphite"
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name={`${domain.id}:${component.id}`}
+                        checked={isSelected}
+                        onChange={() => selectBand(domain.id, component.id, band.letter)}
+                        className="mt-0.5 accent-acid-lime"
+                      />
+                      <span className="text-mist">
+                        <span
+                          className={`mr-2 inline-block w-6 shrink-0 rounded-badges text-center font-mono text-label transition-colors ${
+                            isSelected ? "bg-acid-lime/15 text-acid-lime" : "bg-white/5 text-fog shadow-subtle-2"
+                          }`}
+                        >
+                          {band.letter}
+                        </span>
+                        {band.label}
                       </span>
-                      {band.label}
-                    </span>
-                  </label>
-                ))}
+                    </label>
+                  );
+                })}
               </div>
             </div>
           ))}

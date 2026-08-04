@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { AnimatePresence, motion } from "motion/react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { isDemoMode } from "@/lib/demoMode";
@@ -77,10 +78,17 @@ const OPTION_BUTTON =
 const SELECT_CLASS =
   "mt-1 w-full rounded-inputs border border-white/[0.08] bg-white/[0.02] px-[14px] py-[12px] text-[14px] text-mist focus:border-mist focus:outline-none";
 
+const stepVariants = {
+  enter: (direction: number) => ({ opacity: 0, x: direction >= 0 ? 16 : -16 }),
+  center: { opacity: 1, x: 0 },
+  exit: (direction: number) => ({ opacity: 0, x: direction >= 0 ? -16 : 16 }),
+};
+
 export default function OnboardingWizard() {
   const supabase = useMemo(() => createClient(), []);
   const router = useRouter();
   const [stepIndex, setStepIndex] = useState(0);
+  const [direction, setDirection] = useState(1);
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [email, setEmail] = useState<string | undefined>();
   const [loading, setLoading] = useState(true);
@@ -153,10 +161,12 @@ export default function OnboardingWizard() {
       await handleSubmit();
       return;
     }
+    setDirection(1);
     setStepIndex((i) => i + 1);
   }
 
   function handleBack() {
+    setDirection(-1);
     setStepIndex((i) => Math.max(0, i - 1));
   }
 
@@ -241,203 +251,224 @@ export default function OnboardingWizard() {
           Demo mode — nothing here is saved
         </p>
       )}
-      <p className="text-caption text-ash">
-        Step {stepIndex + 1} of {steps.length}
-      </p>
+      <div className="flex items-center gap-3">
+        <p className="text-caption text-ash">
+          Step {stepIndex + 1} of {steps.length}
+        </p>
+        <div className="h-1 max-w-24 flex-1 overflow-hidden rounded-pills bg-graphite">
+          <motion.div
+            className="h-full rounded-pills bg-acid-lime"
+            animate={{ width: `${((stepIndex + 1) / steps.length) * 100}%` }}
+            transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
+          />
+        </div>
+      </div>
 
-      <div className={`${CARD} mt-2`}>
-        {currentStep === "role" && (
-          <StepShell question="Are you a medical student or a doctor?">
-            <div className="space-y-2">
-              {ONBOARDING_ROLES.map((r) => (
-                <button
-                  key={r.value}
-                  onClick={() => update("role", r.value)}
-                  className={`${OPTION_BUTTON} ${
-                    form.role === r.value ? "border-acid-lime bg-acid-lime/10" : "border-graphite hover:border-smoke"
-                  }`}
+      <div className={`${CARD} mt-2 overflow-hidden`}>
+        <AnimatePresence mode="wait" custom={direction} initial={false}>
+          <motion.div
+            key={currentStep}
+            custom={direction}
+            variants={stepVariants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
+          >
+            {currentStep === "role" && (
+              <StepShell question="Are you a medical student or a doctor?">
+                <div className="space-y-2">
+                  {ONBOARDING_ROLES.map((r) => (
+                    <button
+                      key={r.value}
+                      onClick={() => update("role", r.value)}
+                      className={`${OPTION_BUTTON} ${
+                        form.role === r.value ? "border-acid-lime bg-acid-lime/10" : "border-graphite hover:border-smoke"
+                      }`}
+                    >
+                      <span>
+                        <span className="block font-[510] text-paper">{r.label}</span>
+                        <span className="block text-caption text-fog">{r.description}</span>
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </StepShell>
+            )}
+
+            {currentStep === "med_school" && (
+              <StepShell question="Which medical school?">
+                <select
+                  className={SELECT_CLASS}
+                  value={form.medSchool}
+                  onChange={(e) => update("medSchool", e.target.value)}
                 >
-                  <span>
-                    <span className="block font-[510] text-paper">{r.label}</span>
-                    <span className="block text-caption text-fog">{r.description}</span>
-                  </span>
-                </button>
-              ))}
-            </div>
-          </StepShell>
-        )}
+                  <option value="" className="bg-carbon">
+                    Select your medical school…
+                  </option>
+                  {UK_MEDICAL_SCHOOLS.map((s) => (
+                    <option key={s} value={s} className="bg-carbon">
+                      {s}
+                    </option>
+                  ))}
+                </select>
+              </StepShell>
+            )}
 
-        {currentStep === "med_school" && (
-          <StepShell question="Which medical school?">
-            <select
-              className={SELECT_CLASS}
-              value={form.medSchool}
-              onChange={(e) => update("medSchool", e.target.value)}
-            >
-              <option value="" className="bg-carbon">
-                Select your medical school…
-              </option>
-              {UK_MEDICAL_SCHOOLS.map((s) => (
-                <option key={s} value={s} className="bg-carbon">
-                  {s}
-                </option>
-              ))}
-            </select>
-          </StepShell>
-        )}
+            {currentStep === "year_of_study" && (
+              <StepShell question="What year are you in?">
+                <div className="grid grid-cols-3 gap-2">
+                  {MED_SCHOOL_YEARS.map((y) => (
+                    <button
+                      key={y}
+                      onClick={() => update("yearOfStudy", y)}
+                      className={`${OPTION_BUTTON} justify-center ${
+                        form.yearOfStudy === y ? "border-acid-lime bg-acid-lime/10 text-paper" : "border-graphite text-mist hover:border-smoke"
+                      }`}
+                    >
+                      {y === "Intercalating" ? y : `Year ${y}`}
+                    </button>
+                  ))}
+                </div>
+              </StepShell>
+            )}
 
-        {currentStep === "year_of_study" && (
-          <StepShell question="What year are you in?">
-            <div className="grid grid-cols-3 gap-2">
-              {MED_SCHOOL_YEARS.map((y) => (
-                <button
-                  key={y}
-                  onClick={() => update("yearOfStudy", y)}
-                  className={`${OPTION_BUTTON} justify-center ${
-                    form.yearOfStudy === y ? "border-acid-lime bg-acid-lime/10 text-paper" : "border-graphite text-mist hover:border-smoke"
-                  }`}
+            {currentStep === "preferred_region" && (
+              <StepShell question="Which deanery / region are you in?">
+                <select
+                  className={SELECT_CLASS}
+                  value={form.preferredRegion}
+                  onChange={(e) => update("preferredRegion", e.target.value)}
                 >
-                  {y === "Intercalating" ? y : `Year ${y}`}
-                </button>
-              ))}
-            </div>
-          </StepShell>
-        )}
+                  <option value="" className="bg-carbon">
+                    Select your deanery or region…
+                  </option>
+                  {UK_DEANERIES.map((r) => (
+                    <option key={r} value={r} className="bg-carbon">
+                      {r}
+                    </option>
+                  ))}
+                </select>
+              </StepShell>
+            )}
 
-        {currentStep === "preferred_region" && (
-          <StepShell question="Which deanery / region are you in?">
-            <select
-              className={SELECT_CLASS}
-              value={form.preferredRegion}
-              onChange={(e) => update("preferredRegion", e.target.value)}
-            >
-              <option value="" className="bg-carbon">
-                Select your deanery or region…
-              </option>
-              {UK_DEANERIES.map((r) => (
-                <option key={r} value={r} className="bg-carbon">
-                  {r}
-                </option>
-              ))}
-            </select>
-          </StepShell>
-        )}
+            {currentStep === "grade" && (
+              <StepShell question="What stage are you at?">
+                <div className="space-y-2">
+                  {DOCTOR_STAGES.map((g) => (
+                    <button
+                      key={g.value}
+                      onClick={() => update("grade", g.value)}
+                      className={`${OPTION_BUTTON} ${
+                        form.grade === g.value ? "border-acid-lime bg-acid-lime/10 text-paper" : "border-graphite text-mist hover:border-smoke"
+                      }`}
+                    >
+                      {g.label}
+                    </button>
+                  ))}
+                </div>
+              </StepShell>
+            )}
 
-        {currentStep === "grade" && (
-          <StepShell question="What stage are you at?">
-            <div className="space-y-2">
-              {DOCTOR_STAGES.map((g) => (
-                <button
-                  key={g.value}
-                  onClick={() => update("grade", g.value)}
-                  className={`${OPTION_BUTTON} ${
-                    form.grade === g.value ? "border-acid-lime bg-acid-lime/10 text-paper" : "border-graphite text-mist hover:border-smoke"
-                  }`}
+            {currentStep === "current_specialty" && (
+              <StepShell question="Which specialty are you currently training in?">
+                <select
+                  className={SELECT_CLASS}
+                  value={form.currentSpecialty}
+                  onChange={(e) => update("currentSpecialty", e.target.value)}
                 >
-                  {g.label}
-                </button>
-              ))}
-            </div>
-          </StepShell>
-        )}
+                  <option value="" className="bg-carbon">
+                    Select a specialty…
+                  </option>
+                  {CURRENT_SPECIALTY_OPTIONS.map((s) => (
+                    <option key={s} value={s} className="bg-carbon">
+                      {s}
+                    </option>
+                  ))}
+                </select>
+              </StepShell>
+            )}
 
-        {currentStep === "current_specialty" && (
-          <StepShell question="Which specialty are you currently training in?">
-            <select
-              className={SELECT_CLASS}
-              value={form.currentSpecialty}
-              onChange={(e) => update("currentSpecialty", e.target.value)}
-            >
-              <option value="" className="bg-carbon">
-                Select a specialty…
-              </option>
-              {CURRENT_SPECIALTY_OPTIONS.map((s) => (
-                <option key={s} value={s} className="bg-carbon">
-                  {s}
-                </option>
-              ))}
-            </select>
-          </StepShell>
-        )}
+            {currentStep === "current_specialty_year" && (
+              <StepShell question={`What year of ${form.currentSpecialty || "training"} are you in?`}>
+                <div className="grid grid-cols-3 gap-2">
+                  {SPECIALTY_TRAINING_YEARS.map((y) => (
+                    <button
+                      key={y}
+                      onClick={() => update("currentSpecialtyYear", y)}
+                      className={`${OPTION_BUTTON} justify-center ${
+                        form.currentSpecialtyYear === y ? "border-acid-lime bg-acid-lime/10 text-paper" : "border-graphite text-mist hover:border-smoke"
+                      }`}
+                    >
+                      {y}
+                    </button>
+                  ))}
+                </div>
+              </StepShell>
+            )}
 
-        {currentStep === "current_specialty_year" && (
-          <StepShell question={`What year of ${form.currentSpecialty || "training"} are you in?`}>
-            <div className="grid grid-cols-3 gap-2">
-              {SPECIALTY_TRAINING_YEARS.map((y) => (
-                <button
-                  key={y}
-                  onClick={() => update("currentSpecialtyYear", y)}
-                  className={`${OPTION_BUTTON} justify-center ${
-                    form.currentSpecialtyYear === y ? "border-acid-lime bg-acid-lime/10 text-paper" : "border-graphite text-mist hover:border-smoke"
-                  }`}
+            {currentStep === "hospital_trust" && (
+              <StepShell question="Which hospital or trust?" hint="Optional — helps with local opportunity matching later.">
+                <input
+                  type="text"
+                  value={form.hospitalTrust}
+                  onChange={(e) => update("hospitalTrust", e.target.value)}
+                  placeholder="e.g. Chelsea and Westminster Hospital NHS Foundation Trust"
+                  className={SELECT_CLASS}
+                />
+              </StepShell>
+            )}
+
+            {currentStep === "department" && (
+              <StepShell question="Which specialty or department?">
+                <input
+                  type="text"
+                  value={form.department}
+                  onChange={(e) => update("department", e.target.value)}
+                  placeholder="e.g. Internal Medicine, General Surgery, Paediatrics"
+                  className={SELECT_CLASS}
+                />
+              </StepShell>
+            )}
+
+            {currentStep === "target_specialty" && (
+              <StepShell question="What specialty are you aiming for?">
+                <select
+                  className={SELECT_CLASS}
+                  value={form.targetSpecialty}
+                  onChange={(e) => update("targetSpecialty", e.target.value)}
                 >
-                  {y}
-                </button>
-              ))}
-            </div>
-          </StepShell>
-        )}
+                  <option value="" className="bg-carbon">
+                    Select a specialty…
+                  </option>
+                  {SPECIALTY_OPTIONS.map((s) => (
+                    <option key={s} value={s} className="bg-carbon">
+                      {s}
+                    </option>
+                  ))}
+                </select>
+              </StepShell>
+            )}
 
-        {currentStep === "hospital_trust" && (
-          <StepShell question="Which hospital or trust?" hint="Optional — helps with local opportunity matching later.">
-            <input
-              type="text"
-              value={form.hospitalTrust}
-              onChange={(e) => update("hospitalTrust", e.target.value)}
-              placeholder="e.g. Chelsea and Westminster Hospital NHS Foundation Trust"
-              className={SELECT_CLASS}
-            />
-          </StepShell>
-        )}
-
-        {currentStep === "department" && (
-          <StepShell question="Which specialty or department?">
-            <input
-              type="text"
-              value={form.department}
-              onChange={(e) => update("department", e.target.value)}
-              placeholder="e.g. Internal Medicine, General Surgery, Paediatrics"
-              className={SELECT_CLASS}
-            />
-          </StepShell>
-        )}
-
-        {currentStep === "target_specialty" && (
-          <StepShell question="What specialty are you aiming for?">
-            <select
-              className={SELECT_CLASS}
-              value={form.targetSpecialty}
-              onChange={(e) => update("targetSpecialty", e.target.value)}
-            >
-              <option value="" className="bg-carbon">
-                Select a specialty…
-              </option>
-              {SPECIALTY_OPTIONS.map((s) => (
-                <option key={s} value={s} className="bg-carbon">
-                  {s}
-                </option>
-              ))}
-            </select>
-          </StepShell>
-        )}
-
-        {currentStep === "intent" && (
-          <StepShell question="What do you want to do first?">
-            <div className="space-y-2">
-              {APPLICANT_INTENTS.map((i) => (
-                <button
-                  key={i.value}
-                  onClick={() => update("intent", i.value)}
-                  className={`${OPTION_BUTTON} ${
-                    form.intent === i.value ? "border-acid-lime bg-acid-lime/10 text-paper" : "border-graphite text-mist hover:border-smoke"
-                  }`}
-                >
-                  {i.label}
-                </button>
-              ))}
-            </div>
-          </StepShell>
-        )}
+            {currentStep === "intent" && (
+              <StepShell question="What do you want to do first?">
+                <div className="space-y-2">
+                  {APPLICANT_INTENTS.map((i) => (
+                    <button
+                      key={i.value}
+                      onClick={() => update("intent", i.value)}
+                      className={`${OPTION_BUTTON} ${
+                        form.intent === i.value ? "border-acid-lime bg-acid-lime/10 text-paper" : "border-graphite text-mist hover:border-smoke"
+                      }`}
+                    >
+                      {i.label}
+                    </button>
+                  ))}
+                </div>
+              </StepShell>
+            )}
+          </motion.div>
+        </AnimatePresence>
 
         <div className="mt-8 flex items-center justify-between">
           <button
