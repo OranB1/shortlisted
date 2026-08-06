@@ -7,6 +7,13 @@ import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/Button";
 import { ScoreBreakdown } from "@/components/ScoreBreakdown";
 import {
+  Choicebox,
+  ChoiceboxIndicator,
+  ChoiceboxItem,
+  ChoiceboxItemHeader,
+  ChoiceboxItemTitle,
+} from "@/components/kibo-ui/choicebox";
+import {
   IMT_PORTFOLIO_DOMAINS,
   IMT_SELF_ASSESSMENT_MAX,
   IMT_UNIQUE_APPLICANT_BONUS,
@@ -131,28 +138,32 @@ export default function PortfolioForm() {
             <span className="text-caption text-ash">max {domain.maxPoints}</span>
           </div>
           {domain.note && <p className="mt-1 text-caption text-ash">{domain.note}</p>}
-          <div className="mt-3 space-y-1">
-            {domain.bands.map((band) => (
-              <label
-                key={band.points}
-                className="flex cursor-pointer items-start gap-3 rounded-inputs border border-transparent p-2 text-body-sm hover:border-graphite"
-              >
-                <input
-                  type="radio"
-                  name={domain.id}
-                  checked={selected[domain.id] === band.points}
-                  onChange={() => selectBand(domain.id, band.points)}
-                  className="mt-0.5 accent-acid-lime"
-                />
-                <span className="text-mist">
-                  <span className="mr-2 inline-block w-6 shrink-0 rounded-badges bg-white/5 text-center font-mono text-label text-fog">
-                    {band.points}
-                  </span>
-                  {band.label}
-                </span>
-              </label>
-            ))}
-          </div>
+          <Choicebox
+            className="mt-3"
+            value={String(selected[domain.id] ?? 0)}
+            onValueChange={(v) => selectBand(domain.id, Number(v))}
+          >
+            {domain.bands.map((band) => {
+              const isSelected = selected[domain.id] === band.points;
+              return (
+                <ChoiceboxItem key={band.points} value={String(band.points)}>
+                  <ChoiceboxItemHeader>
+                    <ChoiceboxItemTitle>
+                      <span
+                        className={`mr-2 inline-block w-6 shrink-0 rounded-badges text-center font-mono text-label transition-colors ${
+                          isSelected ? "bg-acid-lime/15 text-acid-lime" : "bg-white/5 text-fog shadow-subtle-2"
+                        }`}
+                      >
+                        {band.points}
+                      </span>
+                      {band.label}
+                    </ChoiceboxItemTitle>
+                  </ChoiceboxItemHeader>
+                  <ChoiceboxIndicator />
+                </ChoiceboxItem>
+              );
+            })}
+          </Choicebox>
         </fieldset>
       ))}
 
@@ -169,7 +180,7 @@ export default function PortfolioForm() {
         </span>
       </label>
 
-      <div className="sticky bottom-4 space-y-2">
+      <div className="space-y-2">
         <ScoreBreakdown
           domains={IMT_PORTFOLIO_DOMAINS}
           selected={selected}

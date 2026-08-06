@@ -2,6 +2,13 @@
 
 import { useMemo, useState } from "react";
 import {
+  Choicebox,
+  ChoiceboxIndicator,
+  ChoiceboxItem,
+  ChoiceboxItemHeader,
+  ChoiceboxItemTitle,
+} from "@/components/kibo-ui/choicebox";
+import {
   CST_PORTFOLIO_DOMAINS,
   CST_SCORING_SOURCE_URL,
   CST_STRUCTURAL_NOTE,
@@ -45,44 +52,41 @@ export default function CstForm() {
           <legend className="font-[510] text-paper">{domain.label}</legend>
           {domain.note && <p className="mt-1 text-caption text-ash">{domain.note}</p>}
 
-          {domain.components.map((component) => (
-            <div key={component.id} className="mt-3">
-              {component.label && (
-                <p className="mb-1 text-caption font-[510] text-fog">{component.label}</p>
-              )}
-              <div className="space-y-1">
-                {component.bands.map((band) => {
-                  const isSelected = selected[`${domain.id}:${component.id}`] === band.letter;
-                  return (
-                    <label
-                      key={band.letter}
-                      className={`flex cursor-pointer items-start gap-3 rounded-inputs border p-2 text-body-sm transition-colors ${
-                        isSelected ? "border-acid-lime/30 bg-acid-lime/[0.04]" : "border-transparent hover:border-graphite"
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        name={`${domain.id}:${component.id}`}
-                        checked={isSelected}
-                        onChange={() => selectBand(domain.id, component.id, band.letter)}
-                        className="mt-0.5 accent-acid-lime"
-                      />
-                      <span className="text-mist">
-                        <span
-                          className={`mr-2 inline-block w-6 shrink-0 rounded-badges text-center font-mono text-label transition-colors ${
-                            isSelected ? "bg-acid-lime/15 text-acid-lime" : "bg-white/5 text-fog shadow-subtle-2"
-                          }`}
-                        >
-                          {band.letter}
-                        </span>
-                        {band.label}
-                      </span>
-                    </label>
-                  );
-                })}
+          {domain.components.map((component) => {
+            const key: SelectionKey = `${domain.id}:${component.id}`;
+            return (
+              <div key={component.id} className="mt-3">
+                {component.label && (
+                  <p className="mb-1 text-caption font-[510] text-fog">{component.label}</p>
+                )}
+                <Choicebox
+                  value={selected[key] ?? ""}
+                  onValueChange={(letter) => selectBand(domain.id, component.id, letter)}
+                >
+                  {component.bands.map((band) => {
+                    const isSelected = selected[key] === band.letter;
+                    return (
+                      <ChoiceboxItem key={band.letter} value={band.letter}>
+                        <ChoiceboxItemHeader>
+                          <ChoiceboxItemTitle>
+                            <span
+                              className={`mr-2 inline-block w-6 shrink-0 rounded-badges text-center font-mono text-label transition-colors ${
+                                isSelected ? "bg-acid-lime/15 text-acid-lime" : "bg-white/5 text-fog shadow-subtle-2"
+                              }`}
+                            >
+                              {band.letter}
+                            </span>
+                            {band.label}
+                          </ChoiceboxItemTitle>
+                        </ChoiceboxItemHeader>
+                        <ChoiceboxIndicator />
+                      </ChoiceboxItem>
+                    );
+                  })}
+                </Choicebox>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </fieldset>
       ))}
 

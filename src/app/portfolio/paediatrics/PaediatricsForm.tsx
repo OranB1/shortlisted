@@ -3,6 +3,13 @@
 import { useMemo, useState } from "react";
 import { ScoreBreakdown } from "@/components/ScoreBreakdown";
 import {
+  Choicebox,
+  ChoiceboxIndicator,
+  ChoiceboxItem,
+  ChoiceboxItemHeader,
+  ChoiceboxItemTitle,
+} from "@/components/kibo-ui/choicebox";
+import {
   PAEDIATRICS_PORTFOLIO_DOMAINS,
   PAEDIATRICS_MAX,
   PAEDIATRICS_MAX_WITH_BONUS,
@@ -46,37 +53,32 @@ export default function PaediatricsForm() {
             <span className="text-caption text-ash">max {domain.maxPoints}</span>
           </div>
           {domain.note && <p className="mt-1 text-caption text-ash">{domain.note}</p>}
-          <div className="mt-3 space-y-1">
+          <Choicebox
+            className="mt-3"
+            value={String(selected[domain.id] ?? 0)}
+            onValueChange={(v) => setSelected((prev) => ({ ...prev, [domain.id]: Number(v) }))}
+          >
             {domain.bands.map((band) => {
               const isSelected = selected[domain.id] === band.points;
               return (
-                <label
-                  key={band.points}
-                  className={`flex cursor-pointer items-start gap-3 rounded-inputs border p-2 text-body-sm transition-colors ${
-                    isSelected ? "border-acid-lime/30 bg-acid-lime/[0.04]" : "border-transparent hover:border-graphite"
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name={domain.id}
-                    checked={isSelected}
-                    onChange={() => setSelected((prev) => ({ ...prev, [domain.id]: band.points }))}
-                    className="mt-0.5 accent-acid-lime"
-                  />
-                  <span className="text-mist">
-                    <span
-                      className={`mr-2 inline-block w-6 shrink-0 rounded-badges text-center font-mono text-label transition-colors ${
-                        isSelected ? "bg-acid-lime/15 text-acid-lime" : "bg-white/5 text-fog shadow-subtle-2"
-                      }`}
-                    >
-                      {band.points}
-                    </span>
-                    {band.label}
-                  </span>
-                </label>
+                <ChoiceboxItem key={band.points} value={String(band.points)}>
+                  <ChoiceboxItemHeader>
+                    <ChoiceboxItemTitle>
+                      <span
+                        className={`mr-2 inline-block w-6 shrink-0 rounded-badges text-center font-mono text-label transition-colors ${
+                          isSelected ? "bg-acid-lime/15 text-acid-lime" : "bg-white/5 text-fog shadow-subtle-2"
+                        }`}
+                      >
+                        {band.points}
+                      </span>
+                      {band.label}
+                    </ChoiceboxItemTitle>
+                  </ChoiceboxItemHeader>
+                  <ChoiceboxIndicator />
+                </ChoiceboxItem>
               );
             })}
-          </div>
+          </Choicebox>
         </fieldset>
       ))}
 
@@ -93,7 +95,7 @@ export default function PaediatricsForm() {
         </span>
       </label>
 
-      <div className="sticky bottom-4">
+      <div>
         <ScoreBreakdown
           domains={PAEDIATRICS_PORTFOLIO_DOMAINS}
           selected={selected}

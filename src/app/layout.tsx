@@ -3,6 +3,7 @@ import { Inter, JetBrains_Mono } from "next/font/google";
 import NavBar from "@/components/NavBar";
 import DemoModeButton from "@/components/DemoModeButton";
 import Footer from "@/components/Footer";
+import { GlobalToastRegion } from "@/components/Toast";
 import "./globals.css";
 
 const inter = Inter({
@@ -36,6 +37,7 @@ export default function RootLayout({
         <DemoModeButton />
         {children}
         <Footer />
+        <GlobalToastRegion />
       </body>
     </html>
   );

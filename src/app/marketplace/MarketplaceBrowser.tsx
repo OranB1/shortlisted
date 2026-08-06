@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import type { User } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/client";
+import { toastQueue } from "@/components/Toast";
 import { TASK_TYPE_OPTIONS, type TaskType } from "@/lib/data/marketplace-options";
 import { getPartneredHospitals, computeMatches, type MatchProfile } from "@/lib/marketplace";
 import type { Tables } from "@/lib/supabase/database.types";
@@ -123,6 +124,10 @@ export default function MarketplaceBrowser() {
     }
     setAppliedIds((prev) => new Set(prev).add(selected.id));
     setCoverNote("");
+    toastQueue.add({
+      title: "Application sent",
+      description: `The poster for "${selected.title}" will be in touch if you're shortlisted.`,
+    });
   }
 
   if (loading) {

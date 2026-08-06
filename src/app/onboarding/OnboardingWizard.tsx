@@ -4,6 +4,17 @@ import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { toastQueue } from "@/components/Toast";
+import {
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxGroup,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxList,
+  ComboboxTrigger,
+} from "@/components/kibo-ui/combobox";
 import { isDemoMode } from "@/lib/demoMode";
 import { UK_MEDICAL_SCHOOLS } from "@/lib/data/uk-medical-schools";
 import {
@@ -209,6 +220,11 @@ export default function OnboardingWizard() {
       return;
     }
 
+    toastQueue.add({
+      title: "You're all set",
+      description: "Your profile is ready — let's get you started.",
+    });
+
     // Only route into a specialty's own tool if one actually exists for it — otherwise fall
     // back to the all-specialty ratios page instead of a mismatched or missing tool.
     const coverage = form.targetSpecialty ? SCORING_COVERAGE[form.targetSpecialty] : undefined;
@@ -297,20 +313,12 @@ export default function OnboardingWizard() {
 
             {currentStep === "med_school" && (
               <StepShell question="Which medical school?">
-                <select
-                  className={SELECT_CLASS}
+                <SearchSelect
+                  options={UK_MEDICAL_SCHOOLS}
                   value={form.medSchool}
-                  onChange={(e) => update("medSchool", e.target.value)}
-                >
-                  <option value="" className="bg-carbon">
-                    Select your medical school…
-                  </option>
-                  {UK_MEDICAL_SCHOOLS.map((s) => (
-                    <option key={s} value={s} className="bg-carbon">
-                      {s}
-                    </option>
-                  ))}
-                </select>
+                  onValueChange={(v) => update("medSchool", v)}
+                  type="medical school"
+                />
               </StepShell>
             )}
 
@@ -336,20 +344,12 @@ export default function OnboardingWizard() {
 
             {currentStep === "preferred_region" && (
               <StepShell question="Which deanery / region are you in?">
-                <select
-                  className={SELECT_CLASS}
+                <SearchSelect
+                  options={UK_DEANERIES}
                   value={form.preferredRegion}
-                  onChange={(e) => update("preferredRegion", e.target.value)}
-                >
-                  <option value="" className="bg-carbon">
-                    Select your deanery or region…
-                  </option>
-                  {UK_DEANERIES.map((r) => (
-                    <option key={r} value={r} className="bg-carbon">
-                      {r}
-                    </option>
-                  ))}
-                </select>
+                  onValueChange={(v) => update("preferredRegion", v)}
+                  type="deanery or region"
+                />
               </StepShell>
             )}
 
@@ -372,20 +372,12 @@ export default function OnboardingWizard() {
 
             {currentStep === "current_specialty" && (
               <StepShell question="Which specialty are you currently training in?">
-                <select
-                  className={SELECT_CLASS}
+                <SearchSelect
+                  options={CURRENT_SPECIALTY_OPTIONS}
                   value={form.currentSpecialty}
-                  onChange={(e) => update("currentSpecialty", e.target.value)}
-                >
-                  <option value="" className="bg-carbon">
-                    Select a specialty…
-                  </option>
-                  {CURRENT_SPECIALTY_OPTIONS.map((s) => (
-                    <option key={s} value={s} className="bg-carbon">
-                      {s}
-                    </option>
-                  ))}
-                </select>
+                  onValueChange={(v) => update("currentSpecialty", v)}
+                  type="specialty"
+                />
               </StepShell>
             )}
 
@@ -433,20 +425,12 @@ export default function OnboardingWizard() {
 
             {currentStep === "target_specialty" && (
               <StepShell question="What specialty are you aiming for?">
-                <select
-                  className={SELECT_CLASS}
+                <SearchSelect
+                  options={SPECIALTY_OPTIONS}
                   value={form.targetSpecialty}
-                  onChange={(e) => update("targetSpecialty", e.target.value)}
-                >
-                  <option value="" className="bg-carbon">
-                    Select a specialty…
-                  </option>
-                  {SPECIALTY_OPTIONS.map((s) => (
-                    <option key={s} value={s} className="bg-carbon">
-                      {s}
-                    </option>
-                  ))}
-                </select>
+                  onValueChange={(v) => update("targetSpecialty", v)}
+                  type="specialty"
+                />
               </StepShell>
             )}
 
@@ -516,6 +500,38 @@ function OptionButton({
       )}
       <span className="relative z-10">{children}</span>
     </motion.button>
+  );
+}
+
+function SearchSelect({
+  options,
+  value,
+  onValueChange,
+  type,
+}: {
+  options: readonly string[];
+  value: string;
+  onValueChange: (value: string) => void;
+  type: string;
+}) {
+  const data = options.map((o) => ({ label: o, value: o }));
+  return (
+    <Combobox data={data} type={type} value={value} onValueChange={onValueChange}>
+      <ComboboxTrigger />
+      <ComboboxContent>
+        <ComboboxInput />
+        <ComboboxList>
+          <ComboboxEmpty />
+          <ComboboxGroup>
+            {data.map((item) => (
+              <ComboboxItem key={item.value} value={item.value}>
+                {item.label}
+              </ComboboxItem>
+            ))}
+          </ComboboxGroup>
+        </ComboboxList>
+      </ComboboxContent>
+    </Combobox>
   );
 }
 
