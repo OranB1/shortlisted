@@ -7,12 +7,14 @@ import { PRIORITY_SPECIALTIES, SCORING_COVERAGE, type CoverageTier } from "@/lib
 const TIER_LABEL: Record<CoverageTier, string> = {
   verified_scoring_and_likelihood: "verified — scoring + likelihood",
   verified_scoring: "verified — scoring",
+  confirmed_no_portfolio: "confirmed — no portfolio",
   indicative: "AI-indicative",
 };
 
 const TIER_STYLE: Record<CoverageTier, string> = {
   verified_scoring_and_likelihood: "bg-pulse-green/15 text-pulse-green",
   verified_scoring: "bg-iris-violet/15 text-iris-violet",
+  confirmed_no_portfolio: "bg-signal-teal/15 text-signal-teal",
   indicative: "bg-white/5 text-fog",
 };
 

@@ -35,15 +35,48 @@ export type SelectionMechanism = {
   mechanism: string;
 };
 
+// Verified against each specialty's own official recruitment site, checked 2026-08-07 (see
+// per-specialty portfolio-category data files for full source URLs and research notes where a
+// scoring matrix exists). Mechanisms confirmed as having genuinely no portfolio component are
+// stated as fact, not as an "indicative" guess — that's a real structural difference, not a gap
+// in our data.
 export const SELECTION_MECHANISMS: SelectionMechanism[] = [
   { specialty: "IMT / joint IMT-ACCS-IM", mechanism: "Self-assessment only, max 30 (+5 IMT-only bonus in 2026 = max 35). No MSRA. Final rank by interview." },
-  { specialty: "GP ST1", mechanism: "100% MSRA (no Selection Centre, no interview, 2025/2026)" },
-  { specialty: "Core Psychiatry CT1", mechanism: "100% MSRA (no interview, 2025/2026)" },
-  { specialty: "ACCS-Emergency Medicine ST1", mechanism: "MSRA 40% / online interview 60%" },
-  { specialty: "Anaesthetics CT1 (incl. ACCS-Anaesthetics)", mechanism: "MSRA 15% (PD 7.5% + CPS 7.5%) / interview 85%" },
+  { specialty: "GP ST1", mechanism: "Confirmed 100% MSRA — no Selection Centre, no interview, no portfolio. Applies through at least the August 2026 round; NHS England hasn't yet published the mechanism for February 2027." },
+  { specialty: "Core Psychiatry CT1", mechanism: "Confirmed 100% MSRA — no interview, no portfolio, through at least the August 2026 round. RCPsych has a Task and Finish Group reviewing the MSRA-only model after 2025's 21.83:1 ratio spike, but NHS England (who has final say) hasn't announced any change." },
+  { specialty: "ACCS-Emergency Medicine ST1", mechanism: "Confirmed MSRA 40% / online interview 60%. Interview includes a portfolio-verification station, but no official points/domain breakdown for it is published — only narrative person-specification criteria." },
+  { specialty: "Anaesthetics CT1 (incl. ACCS-Anaesthetics)", mechanism: "Confirmed MSRA 15% (PD 7.5% + CPS 7.5%) / interview 85%. Portfolio/self-assessment scoring was explicitly removed from the CT1 application form — the 85% is a pure structured interview (two 15-min stations), 60/100 minimum to be appointable." },
+  { specialty: "Obstetrics & Gynaecology ST1", mechanism: "Confirmed MSRA (33.3%) / two-station online interview (66.6%). No portfolio stage. Top 75 MSRA scorers bypass interview straight to offer; everyone else needs 50/100+ at interview to be appointable." },
   { specialty: "Core Surgical Training CT1", mechanism: "MSRA 10% / portfolio station 45% / management & clinical interview station 45% (portfolio scored at interview, not pre-scored)" },
-  { specialty: "O&G, Clinical Radiology, Ophthalmology, Neurosurgery, CSRH, Histopathology, Public Health", mechanism: "MSRA used for shortlisting/bypass-to-offer; exact weighting varies by year — check each specialty's own page" },
+  { specialty: "Clinical Radiology ST1", mechanism: "MSRA shortlists into interview only (doesn't carry to final rank). Verified scoring matrix: portfolio 40% + interview 60% of final rank — see the Clinical Radiology portfolio scorer." },
+  { specialty: "Ophthalmology ST1", mechanism: "MSRA gates the first shortlisting cut only (doesn't carry to final score). Verified scoring matrix for the self-assessment Evidence Folder — see the Ophthalmology portfolio scorer." },
+  { specialty: "Neurosurgery, CSRH, Histopathology, Public Health", mechanism: "MSRA used for shortlisting/bypass-to-offer; exact weighting and any portfolio component not yet researched for these — check each specialty's own page" },
 ];
+
+// Official NHS England GP ST1 MSRA score-band table, per paper (Clinical Problem Solving shown;
+// a parallel table exists for Professional Dilemmas but wasn't extracted). Source:
+// https://medical.hee.nhs.uk/medical-training-recruitment/medical-specialty-training/general-practice-gp/how-to-apply-for-gp-specialty-training/gp-specialty-training-recruitment/gp-msra
+// Page is labelled "2026 round 1 scoring" but its own "last reviewed" date is 25 Sep 2023 — the
+// band shape is very likely reused each cycle rather than freshly recalculated, so treat this as
+// indicative of band shape, not a confirmed 2026-cohort result. MSRA scores are normalised to a
+// mean of 250 and SD of 40 each sitting, which is why this table works as a rough model across
+// cycles despite raw scores not being directly comparable year to year.
+export type GpMsraBand = { minScore: number | null; maxScore: number | null; pctOfCandidates: number; band: number };
+
+export const GP_MSRA_SCORE_BANDS: GpMsraBand[] = [
+  { minScore: null, maxScore: 170, pctOfCandidates: 2, band: 1 },
+  { minScore: 171, maxScore: 185, pctOfCandidates: 2, band: 1 },
+  { minScore: 186, maxScore: 210, pctOfCandidates: 7, band: 2 },
+  { minScore: 211, maxScore: 230, pctOfCandidates: 9, band: 2 },
+  { minScore: 231, maxScore: 250, pctOfCandidates: 13, band: 3 },
+  { minScore: 251, maxScore: 270, pctOfCandidates: 19, band: 3 },
+  { minScore: 271, maxScore: 290, pctOfCandidates: 24, band: 3 },
+  { minScore: 291, maxScore: 310, pctOfCandidates: 20, band: 4 },
+  { minScore: 311, maxScore: null, pctOfCandidates: 4, band: 4 },
+];
+
+export const GP_MSRA_BANDS_SOURCE_URL =
+  "https://medical.hee.nhs.uk/medical-training-recruitment/medical-specialty-training/general-practice-gp/how-to-apply-for-gp-specialty-training/gp-specialty-training-recruitment/gp-msra";
 
 export const MSRA_MINIMUM_STANDARD = {
   perComponent: 201,
@@ -70,7 +103,15 @@ export const PRIORITY_SPECIALTIES = [
 // "verified_scoring" = a real, sourced scoring matrix, but no published score distribution to
 // build a likelihood estimate from (CST is interview-assessed live; Paediatrics' shortlisting
 // score is a gate that doesn't carry to final rank).
-export type CoverageTier = "verified_scoring_and_likelihood" | "verified_scoring" | "indicative";
+// "confirmed_no_portfolio" = we've verified, from the specialty's own official recruitment site,
+// that there is no portfolio/self-assessment scoring matrix at all (MSRA-only, or a pure
+// structured interview with no published scoring rubric) — this is a confirmed fact, not a gap
+// in our research, so it's deliberately shown differently from "indicative".
+export type CoverageTier =
+  | "verified_scoring_and_likelihood"
+  | "verified_scoring"
+  | "confirmed_no_portfolio"
+  | "indicative";
 
 export type SpecialtyCoverage = {
   tier: CoverageTier;
@@ -86,11 +127,11 @@ export const SCORING_COVERAGE: Record<string, SpecialtyCoverage> = {
   },
   "Core Surgical Training": { tier: "verified_scoring", portfolioHref: "/portfolio/cst" },
   "Paediatrics": { tier: "verified_scoring", portfolioHref: "/portfolio/paediatrics" },
-  "General Practice": { tier: "indicative" },
-  "Core Psychiatry Training": { tier: "indicative" },
-  "Anaesthetics / ACCS": { tier: "indicative" },
-  "Obstetrics & Gynaecology": { tier: "indicative" },
-  "ACCS Emergency Medicine": { tier: "indicative" },
-  "Clinical Radiology": { tier: "indicative" },
-  "Ophthalmology": { tier: "indicative" },
+  "Clinical Radiology": { tier: "verified_scoring", portfolioHref: "/portfolio/radiology" },
+  "Ophthalmology": { tier: "verified_scoring", portfolioHref: "/portfolio/ophthalmology" },
+  "General Practice": { tier: "confirmed_no_portfolio" },
+  "Core Psychiatry Training": { tier: "confirmed_no_portfolio" },
+  "Anaesthetics / ACCS": { tier: "confirmed_no_portfolio" },
+  "Obstetrics & Gynaecology": { tier: "confirmed_no_portfolio" },
+  "ACCS Emergency Medicine": { tier: "confirmed_no_portfolio" },
 };
