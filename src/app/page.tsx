@@ -2,7 +2,12 @@ import Link from "next/link";
 import { Check, Circle, ArrowRight } from "lucide-react";
 import { Button } from "@/components/Button";
 import { ScoreRing } from "@/components/ScoreRing";
-import { PRIORITY_SPECIALTIES, SCORING_COVERAGE, type CoverageTier } from "@/lib/data/all-specialty-ratios";
+import {
+  PRIORITY_SPECIALTIES,
+  SCORING_COVERAGE,
+  SECONDARY_SPECIALTIES,
+  type CoverageTier,
+} from "@/lib/data/all-specialty-ratios";
 
 const TIER_LABEL: Record<CoverageTier, string> = {
   verified_scoring_and_likelihood: "verified — scoring + likelihood",
@@ -38,8 +43,14 @@ const EXPLORE_CARDS = [
   {
     href: "/portfolio/imt",
     title: "Portfolio Scoring",
-    body: "Score your portfolio against the official self-assessment matrix, domain by domain. IMT, CST, and Paediatrics are live now — more specialties are on the way.",
+    body: "Score your portfolio against the official self-assessment matrix, domain by domain. IMT, CST, Paediatrics, Clinical Radiology, Ophthalmology, Cardiothoracic Surgery, and Histopathology are live now — more specialties are on the way.",
     cta: "Score now",
+  },
+  {
+    href: "/plan",
+    title: "Deadline Planner",
+    body: "Pick every specialty you're applying to and see one combined, countdown-sorted timeline of every application, MSRA, portfolio, and interview deadline.",
+    cta: "Build my plan",
   },
 ];
 
@@ -50,7 +61,7 @@ export default function Home() {
         <div className="max-w-2xl lg:flex-1">
           <span className="inline-flex items-center gap-2 rounded-pills bg-white/5 px-3 py-[6px] text-label text-fog">
             <span className="h-1.5 w-1.5 rounded-full bg-pulse-green" />
-            Live: verified scoring for IMT, CST &amp; Paediatrics
+            Live: verified scoring for 7 specialties
           </span>
 
           <h1 className="mt-4 text-heading-lg font-[510] text-paper">Know where you stand.</h1>
@@ -125,6 +136,38 @@ export default function Home() {
                 </Link>
               ) : (
                 <div key={s} className={rowClass}>
+                  {content}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="rounded-cards bg-carbon p-6 shadow-subtle sm:col-span-2">
+          <h2 className="text-[17px] font-[510] text-paper">Also covered</h2>
+          <p className="mt-1 text-caption text-ash">
+            Smaller applicant pools than the 10 priority specialties above, but scored or
+            researched anyway.
+          </p>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {SECONDARY_SPECIALTIES.map(({ name, coverage }) => {
+              const href = coverage.portfolioHref ?? coverage.likelihoodHref;
+              const rowClass =
+                "flex items-center justify-between gap-2 rounded-inputs border border-graphite p-3 text-body-sm text-mist transition-colors hover:border-smoke hover:text-paper";
+              const content = (
+                <>
+                  <span>{name}</span>
+                  <span className={`shrink-0 rounded-badges px-[6px] text-label ${TIER_STYLE[coverage.tier]}`}>
+                    {TIER_LABEL[coverage.tier]}
+                  </span>
+                </>
+              );
+              return href ? (
+                <Link key={name} href={href} className={rowClass}>
+                  {content}
+                </Link>
+              ) : (
+                <div key={name} className={rowClass}>
                   {content}
                 </div>
               );

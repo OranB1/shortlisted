@@ -7,6 +7,7 @@ const LINKS = [
   { href: "/specialties", label: "All Specialties" },
   { href: "/imt-likelihood", label: "Likelihood" },
   { href: "/portfolio/imt", label: "Portfolio" },
+  { href: "/plan", label: "My Plan" },
   { href: "/marketplace", label: "Marketplace" },
   { href: "/about", label: "About" },
   { href: "/contact", label: "Contact" },

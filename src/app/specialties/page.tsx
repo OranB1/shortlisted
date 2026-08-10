@@ -6,6 +6,9 @@ import {
 } from "@/lib/data/all-specialty-ratios";
 import { IDT_NOTES, IDT_CAVEAT } from "@/lib/data/inter-deanery-transfers";
 import { projectNextCycleRatio, impliedTopPercentFromRatio, estimateGpMsraScoreTarget } from "@/lib/projection";
+import { CompetitionRatioChart } from "@/components/CompetitionRatioChart";
+import { Sources } from "@/components/Sources";
+import { COMPETITION_RATIOS_SOURCE_URL, SPECIALTY_SOURCES } from "@/lib/data/sources";
 
 function ratioChange(r2024: number, r2025: number): { pct: number; harder: boolean } {
   const pct = ((r2025 - r2024) / r2024) * 100;
@@ -27,6 +30,10 @@ export default function SpecialtiesPage() {
         Round 1 applications-per-post, 2024 vs 2025. Source: NHS England official competition
         ratios archive. Every specialty got harder 2024 → 2025 — several dramatically.
       </p>
+
+      <div className="mt-8">
+        <CompetitionRatioChart data={SPECIALTY_RATIOS} />
+      </div>
 
       <div className="mt-8 overflow-x-auto rounded-cards bg-carbon shadow-subtle">
         <table className="w-full text-left text-body-sm">
@@ -126,6 +133,21 @@ export default function SpecialtiesPage() {
             </div>
             <p className="mt-1 text-body-sm text-fog">{n.note}</p>
           </div>
+        ))}
+      </div>
+
+      <h2 className="mt-16 text-subheading font-[510] text-paper">Sources</h2>
+      <p className="mt-2 max-w-2xl text-body-sm text-fog">
+        Every number on this page is drawn from an official source, not estimated. Competition
+        ratios for every specialty come from NHS England&apos;s own archive; the per-specialty
+        breakdowns below link to each scoring/selection document individually.
+      </p>
+      <div className="mt-4 grid gap-3 sm:grid-cols-2">
+        <Sources sources={[{ label: "Official competition ratios archive (NHS England)", url: COMPETITION_RATIOS_SOURCE_URL }]} title="Competition ratios" />
+        {SPECIALTY_SOURCES.filter(
+          (s) => s.specialty !== "All specialties — competition ratios"
+        ).map((s) => (
+          <Sources key={s.specialty} sources={s.sources} title={s.specialty} />
         ))}
       </div>
     </main>

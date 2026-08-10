@@ -7,12 +7,14 @@ const FOOTER_NAV = [
       { label: "All Specialties", href: "/specialties" },
       { label: "Likelihood", href: "/imt-likelihood" },
       { label: "Portfolio", href: "/portfolio/imt" },
+      { label: "My Plan", href: "/plan" },
       { label: "Marketplace", href: "/marketplace" },
     ],
   },
   {
     label: "Company",
     items: [
+      { label: "Sources", href: "/sources" },
       { label: "About", href: "/about" },
       { label: "Contact", href: "/contact" },
     ],

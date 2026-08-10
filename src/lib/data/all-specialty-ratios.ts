@@ -50,7 +50,12 @@ export const SELECTION_MECHANISMS: SelectionMechanism[] = [
   { specialty: "Core Surgical Training CT1", mechanism: "MSRA 10% / portfolio station 45% / management & clinical interview station 45% (portfolio scored at interview, not pre-scored)" },
   { specialty: "Clinical Radiology ST1", mechanism: "MSRA shortlists into interview only (doesn't carry to final rank). Verified scoring matrix: portfolio 40% + interview 60% of final rank — see the Clinical Radiology portfolio scorer." },
   { specialty: "Ophthalmology ST1", mechanism: "MSRA gates the first shortlisting cut only (doesn't carry to final score). Verified scoring matrix for the self-assessment Evidence Folder — see the Ophthalmology portfolio scorer." },
-  { specialty: "Neurosurgery, CSRH, Histopathology, Public Health", mechanism: "MSRA used for shortlisting/bypass-to-offer; exact weighting and any portfolio component not yet researched for these — check each specialty's own page" },
+  { specialty: "Cardiothoracic Surgery ST1", mechanism: "No MSRA. Self-assessment (16 domains across 5 sections, max 59) verified against evidence, then combined with a structured interview — NHS England Wessex doesn't publish the weighting. See the Cardiothoracic Surgery portfolio scorer." },
+  { specialty: "Histopathology ST1", mechanism: "No MSRA. Self-assessment (10 domains, max 71) shortlists to evidence verification; final rank is interview-only. See the Histopathology portfolio scorer." },
+  { specialty: "Neurosurgery ST1", mechanism: "Confirmed two-stage ranking: MSRA 40% + self-assessment 60% ranks for interview; final rank is MSRA 12% + self-assessment 18% + four-station interview 70%. 65% of available marks needed to be appointable. Exact self-assessment domain point values not yet obtainable (source PDF unreachable) — no scorer built yet." },
+  { specialty: "Oral & Maxillofacial Surgery (OMFS) ST1", mechanism: "No MSRA. Self-assessed portfolio (confirmed domains: MFDS/MRCS, OMFS and non-OMFS courses, OMFS and non-OMFS surgical logbook experience, OMFS educational activity, postgraduate degrees, prizes, QI/audit, teaching, training in teaching, presentations, publications, leadership, other achievements) plus a four-station interview (7 min/station, 60% overall + 40%/station to be appointable). Exact point values per domain not yet obtainable (source page removed/relocated) — no scorer built yet." },
+  { specialty: "Community Sexual & Reproductive Health (CSRH) ST1", mechanism: "MSRA-ranked shortlisting into interview; NHS England doesn't publish the MSRA/interview weighting. No scored portfolio." },
+  { specialty: "Public Health Medicine ST1", mechanism: "Does not use the MSRA. Assessment Centre (3 computer-based papers) is pass/fail only; final rank is 100% Selection Centre (virtual interview) score. Accepts non-medical applicants." },
 ];
 
 // Official NHS England GP ST1 MSRA score-band table, per paper (Clinical Problem Solving shown;
@@ -135,3 +140,19 @@ export const SCORING_COVERAGE: Record<string, SpecialtyCoverage> = {
   "Obstetrics & Gynaecology": { tier: "confirmed_no_portfolio" },
   "ACCS Emergency Medicine": { tier: "confirmed_no_portfolio" },
 };
+
+// Specialties covered outside the 10-priority list above — smaller applicant pools, but built
+// because we could source (or partially source) their scoring matrices. Kept separate from
+// SCORING_COVERAGE/PRIORITY_SPECIALTIES so the home page's priority grid doesn't grow to cover
+// every specialty in SPECIALTY_RATIOS, only the ones with dedicated build effort behind them.
+export type SecondarySpecialty = {
+  name: string;
+  coverage: SpecialtyCoverage;
+};
+
+export const SECONDARY_SPECIALTIES: SecondarySpecialty[] = [
+  { name: "Cardiothoracic Surgery", coverage: { tier: "verified_scoring", portfolioHref: "/portfolio/cardiothoracic" } },
+  { name: "Histopathology", coverage: { tier: "verified_scoring", portfolioHref: "/portfolio/histopathology" } },
+  { name: "Neurosurgery", coverage: { tier: "indicative" } },
+  { name: "Oral & Maxillofacial Surgery", coverage: { tier: "indicative" } },
+];
