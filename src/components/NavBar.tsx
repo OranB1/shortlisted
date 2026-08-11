@@ -30,14 +30,14 @@ export default async function NavBar() {
             <Link
               key={l.href}
               href={l.href}
-              className="rounded-buttons px-3 py-2 text-[13px] font-normal text-mist transition-colors hover:text-paper"
+              className="rounded-buttons px-3 py-2 text-[14px] font-[450] text-mist transition-colors hover:text-paper"
             >
               {l.label}
             </Link>
           ))}
         </div>
         {user ? (
-          <div className="flex items-center gap-4 text-[13px]">
+          <div className="flex items-center gap-4 text-[14px]">
             <Link href="/profile" className="text-mist transition-colors hover:text-paper">
               Profile
             </Link>

@@ -51,21 +51,28 @@
   --text-body-lg: 20px;
   --text-body-lg--line-height: 1.33;
   --text-body-lg--letter-spacing: -0.24px;
+  /* heading-sm through display are exclusively used by the serif (always paired with
+     font-serif in markup — see CLAUDE.md). Their line-height/letter-spacing were inherited
+     from the old sans/dark theme's scale, which was tuned for a tight geometric sans — wrong
+     on two counts for a serif that wraps to multiple lines: negative tracking crowds serif
+     letterforms (they're already less condensed than a sans), and line-height getting
+     *tighter* as size increases crowds wrapped lines together right when there's most row
+     height to spare. Both loosened here. */
   --text-subheading: 24px;
-  --text-subheading--line-height: 1.33;
-  --text-subheading--letter-spacing: -0.288px;
+  --text-subheading--line-height: 1.4;
+  --text-subheading--letter-spacing: 0px;
   --text-heading-sm: 32px;
-  --text-heading-sm--line-height: 1.15;
-  --text-heading-sm--letter-spacing: -0.4px;
+  --text-heading-sm--line-height: 1.25;
+  --text-heading-sm--letter-spacing: 0px;
   --text-heading: 48px;
-  --text-heading--line-height: 1.1;
-  --text-heading--letter-spacing: -0.6px;
+  --text-heading--line-height: 1.2;
+  --text-heading--letter-spacing: -0.2px;
   --text-heading-lg: 64px;
-  --text-heading-lg--line-height: 1.05;
-  --text-heading-lg--letter-spacing: -1px;
+  --text-heading-lg--line-height: 1.15;
+  --text-heading-lg--letter-spacing: -0.3px;
   --text-display: 80px;
-  --text-display--line-height: 1.02;
-  --text-display--letter-spacing: -1.4px;
+  --text-display--line-height: 1.1;
+  --text-display--letter-spacing: -0.4px;
 
   /* Radii */
   --radius-small: 4px;
