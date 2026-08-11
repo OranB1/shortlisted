@@ -42,7 +42,7 @@ export default function Footer() {
           ))}
         </nav>
         <div className="mt-12 flex flex-col justify-between gap-4 border-t border-graphite pt-8 sm:flex-row sm:items-center">
-          <span className="text-[15px] font-[510] tracking-[-0.011em] text-paper">Shortlisted</span>
+          <span className="font-serif text-[17px] text-paper">Shortlisted</span>
           <p className="text-caption text-ash">© {new Date().getFullYear()} Shortlisted. All rights reserved.</p>
         </div>
       </div>

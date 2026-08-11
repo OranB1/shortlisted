@@ -153,14 +153,14 @@ export default function ProfileForm() {
           onChange={(e) => setFullName(e.target.value)}
           onBlur={handleSaveName}
           placeholder="Shown to posters when you apply"
-          className="mt-1 w-full rounded-inputs border border-white/[0.08] bg-white/[0.02] px-[14px] py-[12px] text-[14px] text-mist focus:border-mist focus:outline-none"
+          className="mt-1 w-full rounded-inputs border border-graphite bg-black/[0.025] px-[14px] py-[12px] text-[14px] text-mist focus:border-mist focus:outline-none"
         />
       </div>
 
       <div className="rounded-cards bg-carbon p-6 shadow-subtle">
         <p className="text-body-sm text-mist">Photo</p>
         <div className="mt-3 flex items-center gap-4">
-          <div className="h-16 w-16 shrink-0 overflow-hidden rounded-pills bg-white/5">
+          <div className="h-16 w-16 shrink-0 overflow-hidden rounded-pills bg-black/[0.045]">
             {avatarUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={avatarUrl} alt="Profile photo" className="h-full w-full object-cover" />
@@ -195,7 +195,7 @@ export default function ProfileForm() {
           onBlur={handleSaveBio}
           rows={4}
           placeholder="A short description posters will see when you apply — your interests, what you're looking for, relevant experience."
-          className="mt-1 w-full rounded-inputs border border-white/[0.08] bg-white/[0.02] px-[14px] py-[12px] text-[14px] text-mist focus:border-mist focus:outline-none"
+          className="mt-1 w-full rounded-inputs border border-graphite bg-black/[0.025] px-[14px] py-[12px] text-[14px] text-mist focus:border-mist focus:outline-none"
         />
       </div>
 

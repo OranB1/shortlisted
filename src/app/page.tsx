@@ -20,7 +20,7 @@ const TIER_STYLE: Record<CoverageTier, string> = {
   verified_scoring_and_likelihood: "bg-pulse-green/15 text-pulse-green",
   verified_scoring: "bg-iris-violet/15 text-iris-violet",
   confirmed_no_portfolio: "bg-signal-teal/15 text-signal-teal",
-  indicative: "bg-white/5 text-fog",
+  indicative: "bg-black/[0.045] text-fog",
 };
 
 const CHECKLIST_PREVIEW = [
@@ -59,12 +59,12 @@ export default function Home() {
     <main className="mx-auto w-full max-w-[1200px] flex-1 px-6 py-24">
       <section className="lg:flex lg:items-center lg:gap-16">
         <div className="max-w-2xl lg:flex-1">
-          <span className="inline-flex items-center gap-2 rounded-pills bg-white/5 px-3 py-[6px] text-label text-fog">
+          <span className="inline-flex items-center gap-2 rounded-pills bg-black/[0.045] px-3 py-[6px] text-label text-fog">
             <span className="h-1.5 w-1.5 rounded-full bg-pulse-green" />
             Live: verified scoring for 7 specialties
           </span>
 
-          <h1 className="mt-4 text-heading-lg font-[510] text-paper">Know where you stand.</h1>
+          <h1 className="mt-4 text-heading-lg font-serif font-normal text-paper">Know where you stand.</h1>
           <p className="mt-6 max-w-lg text-body text-fog">
             Portfolio scoring, offer-likelihood estimates, and opportunity matching for foundation
             doctors and medical students building toward UK specialty training applications.

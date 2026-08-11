@@ -47,7 +47,7 @@ export default function LoginForm() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="you@imperial.ac.uk or you@nhs.net"
-          className="mt-1 w-full rounded-inputs border border-white/[0.08] bg-white/[0.02] px-[14px] py-[12px] text-[14px] text-mist focus:border-mist focus:outline-none"
+          className="mt-1 w-full rounded-inputs border border-graphite bg-black/[0.025] px-[14px] py-[12px] text-[14px] text-mist focus:border-mist focus:outline-none"
         />
         <p className="mt-1 text-caption text-ash">
           Must end in .ac.uk, nhs.net, or nhs.uk — this is currently for UK medical students and doctors only.

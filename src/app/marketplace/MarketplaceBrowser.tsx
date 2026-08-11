@@ -12,7 +12,7 @@ import type { Tables } from "@/lib/supabase/database.types";
 type Opportunity = Tables<"opportunities">;
 
 const INPUT_CLASS =
-  "rounded-inputs border border-white/[0.08] bg-white/[0.02] px-3 py-2 text-[13px] text-mist focus:border-mist focus:outline-none";
+  "rounded-inputs border border-graphite bg-black/[0.025] px-3 py-2 text-[13px] text-mist focus:border-mist focus:outline-none";
 
 export default function MarketplaceBrowser() {
   const supabase = useMemo(() => createClient(), []);
@@ -180,7 +180,7 @@ export default function MarketplaceBrowser() {
                 <p className="font-[510] text-paper">{o.title}</p>
                 <p className="mt-1 text-caption text-fog">{o.hospital_trust ?? "Location not specified"}</p>
                 <div className="mt-2 flex flex-wrap gap-1">
-                  <span className="rounded-badges bg-white/5 px-[6px] text-label text-fog">
+                  <span className="rounded-badges bg-black/[0.045] px-[6px] text-label text-fog">
                     {TASK_TYPE_OPTIONS.find((t) => t.value === o.task_type)?.label ?? o.task_type}
                   </span>
                   {appliedIds.has(o.id) && (
@@ -252,7 +252,7 @@ export default function MarketplaceBrowser() {
                       onChange={(e) => setCoverNote(e.target.value)}
                       rows={3}
                       placeholder="Optional note to the poster"
-                      className="w-full rounded-inputs border border-white/[0.08] bg-white/[0.02] px-[14px] py-[12px] text-[14px] text-mist focus:border-mist focus:outline-none"
+                      className="w-full rounded-inputs border border-graphite bg-black/[0.025] px-[14px] py-[12px] text-[14px] text-mist focus:border-mist focus:outline-none"
                     />
                     {applyError && <p className="mt-2 text-caption text-coral-red">{applyError}</p>}
                     <button

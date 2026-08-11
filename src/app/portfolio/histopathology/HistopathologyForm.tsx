@@ -58,7 +58,7 @@ export default function HistopathologyForm() {
         .
       </div>
 
-      <div className="rounded-cards border border-dashed border-graphite bg-white/[0.02] p-4 text-body-sm text-fog">
+      <div className="rounded-cards border border-dashed border-graphite bg-black/[0.02] p-4 text-body-sm text-fog">
         {HISTOPATHOLOGY_STRUCTURAL_NOTE}
       </div>
 
@@ -85,7 +85,7 @@ export default function HistopathologyForm() {
                       <ChoiceboxItemTitle>
                         <span
                           className={`mr-2 inline-block w-8 shrink-0 rounded-badges text-center font-mono text-label transition-colors ${
-                            isSelected ? "bg-acid-lime/15 text-acid-lime" : "bg-white/5 text-fog shadow-subtle-2"
+                            isSelected ? "bg-acid-lime/15 text-acid-lime" : "bg-black/[0.045] text-fog shadow-subtle-2"
                           }`}
                         >
                           +{band.points}

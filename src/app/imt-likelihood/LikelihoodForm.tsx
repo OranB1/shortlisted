@@ -35,7 +35,7 @@ const PRIORITY_STYLES: Record<string, string> = {
 };
 
 const INPUT_CLASS =
-  "mt-1 w-full rounded-inputs border border-white/[0.08] bg-white/[0.02] px-[14px] py-[12px] text-[14px] text-mist focus:border-mist focus:outline-none";
+  "mt-1 w-full rounded-inputs border border-graphite bg-black/[0.025] px-[14px] py-[12px] text-[14px] text-mist focus:border-mist focus:outline-none";
 
 export default function LikelihoodForm() {
   const searchParams = useSearchParams();
@@ -302,7 +302,7 @@ export default function LikelihoodForm() {
           </div>
         )}
 
-        <div className="rounded-cards border border-dashed border-graphite bg-white/[0.02] p-4 text-caption text-ash">
+        <div className="rounded-cards border border-dashed border-graphite bg-black/[0.02] p-4 text-caption text-ash">
           <p className="font-[510] text-fog">Caveats</p>
           <ul className="mt-2 list-inside list-disc space-y-1">
             {result.caveats.map((c) => (

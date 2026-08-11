@@ -5,7 +5,7 @@ import { Button } from "@/components/Button";
 import { submitContactForm, type ContactFormState } from "./actions";
 
 const INPUT_CLASS =
-  "mt-1 w-full rounded-inputs border border-white/[0.08] bg-white/[0.02] px-[14px] py-[12px] text-[14px] text-mist focus:border-mist focus:outline-none";
+  "mt-1 w-full rounded-inputs border border-graphite bg-black/[0.025] px-[14px] py-[12px] text-[14px] text-mist focus:border-mist focus:outline-none";
 
 const initialState: ContactFormState = { status: "idle" };
 

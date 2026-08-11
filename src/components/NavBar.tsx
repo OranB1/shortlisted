@@ -22,7 +22,7 @@ export default async function NavBar() {
   return (
     <header className="border-b-[0.5px] border-graphite bg-void">
       <nav className="mx-auto flex max-w-[1200px] items-center gap-6 px-6 py-4">
-        <Link href="/" className="text-[16px] font-[510] tracking-[-0.011em] text-paper">
+        <Link href="/" className="font-serif text-[19px] text-paper">
           Shortlisted
         </Link>
         <div className="flex flex-1 gap-2">

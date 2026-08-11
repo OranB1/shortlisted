@@ -78,7 +78,7 @@ export default function PlanBuilder() {
       </div>
 
       {selected.length === 0 ? (
-        <div className="rounded-cards border border-dashed border-graphite bg-white/[0.02] p-8 text-center text-body-sm text-fog">
+        <div className="rounded-cards border border-dashed border-graphite bg-black/[0.02] p-8 text-center text-body-sm text-fog">
           Pick one or more specialties above to build your combined deadline timeline.
         </div>
       ) : (

@@ -85,7 +85,7 @@ function guessRoleFromEmail(email: string | undefined): Role | null {
 
 const CARD = "rounded-cards bg-carbon p-8 shadow-subtle";
 const SELECT_CLASS =
-  "mt-1 w-full rounded-inputs border border-white/[0.08] bg-white/[0.02] px-[14px] py-[12px] text-[14px] text-mist focus:border-mist focus:outline-none";
+  "mt-1 w-full rounded-inputs border border-graphite bg-black/[0.025] px-[14px] py-[12px] text-[14px] text-mist focus:border-mist focus:outline-none";
 
 const stepVariants = {
   enter: (direction: number) => ({ opacity: 0, x: direction >= 0 ? 16 : -16 }),

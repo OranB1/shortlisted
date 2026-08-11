@@ -1,26 +1,35 @@
 @import "tailwindcss";
 
 @theme {
-  /* Colors — Shortlisted / Linear-style dark system */
-  --color-void: #08090a;
-  --color-carbon: #0f1011;
-  --color-obsidian: #161718;
-  --color-graphite: #23252a;
-  --color-smoke: #383b3f;
-  --color-ash: #62666d;
-  --color-fog: #8a8f98;
-  --color-mist: #d0d6e0;
-  --color-bone: #e5e5e6;
-  --color-paper: #ffffff;
-  --color-acid-lime: #e4f222;
-  --color-pulse-green: #27a644;
-  --color-coral-red: #eb5757;
-  --color-signal-teal: #02b8cc;
-  --color-iris-violet: #6366f1;
-  --color-lavender: #8b5cf6;
+  /* Colors — Shortlisted / warm-paper editorial light system.
+     Token names are historical (from the old dark theme) but every value below is new — kept the
+     names rather than renaming ~350 call sites across the app. Two collisions were resolved by
+     hand rather than by value alone: `void` doubles as both the page canvas (light) and button
+     text-on-fill (works because it's a *light* ink, reads fine on both the blue primary and the
+     dark `bone` pill fill); `bone` was repointed from "light pill fill" to "dark ink fill" to keep
+     working with `text-void` without any component edits. See CLAUDE.md for the full audit. */
+  --color-void: #f7f2ea; /* warm paper canvas */
+  --color-carbon: #ffffff; /* card surface */
+  --color-obsidian: #fbe8d2; /* rare warm accent card (score totals, sticky emphasis) */
+  --color-graphite: #e7ded0; /* hairline border */
+  --color-smoke: #d3c6b2; /* stronger border / hover */
+  --color-ash: #9a8f7c; /* tertiary text, captions, labels */
+  --color-fog: #6f6555; /* secondary text */
+  --color-mist: #3b352b; /* primary body/UI text */
+  --color-bone: #1f1a14; /* dark ink fill (pill button) */
+  --color-paper: #1c1712; /* heading ink */
+  --color-acid-lime: #3457c9; /* primary accent (was bright lime on dark) */
+  --color-pulse-green: #1a7a3f;
+  --color-coral-red: #c94343;
+  --color-signal-teal: #05808f;
+  --color-iris-violet: #4d4fce;
+  --color-lavender: #7a49cf;
+  --color-peach: #f3c39a; /* editorial highlight accent, used sparingly */
+  --color-peach-ink: #7a3a12; /* ink for text on peach */
 
   /* Fonts */
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-serif: var(--font-source-serif), ui-serif, Georgia, "Times New Roman", serif;
   --font-mono: var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
 
   /* Type scale: size / line-height / letter-spacing */
@@ -42,35 +51,36 @@
   --text-subheading--line-height: 1.33;
   --text-subheading--letter-spacing: -0.288px;
   --text-heading-sm: 32px;
-  --text-heading-sm--line-height: 1.13;
-  --text-heading-sm--letter-spacing: -0.704px;
+  --text-heading-sm--line-height: 1.15;
+  --text-heading-sm--letter-spacing: -0.4px;
   --text-heading: 48px;
-  --text-heading--line-height: 1;
-  --text-heading--letter-spacing: -1.056px;
+  --text-heading--line-height: 1.1;
+  --text-heading--letter-spacing: -0.6px;
   --text-heading-lg: 64px;
-  --text-heading-lg--line-height: 1;
-  --text-heading-lg--letter-spacing: -1.408px;
-  --text-display: 72px;
-  --text-display--line-height: 1;
-  --text-display--letter-spacing: -1.584px;
+  --text-heading-lg--line-height: 1.05;
+  --text-heading-lg--letter-spacing: -1px;
+  --text-display: 80px;
+  --text-display--line-height: 1.02;
+  --text-display--letter-spacing: -1.4px;
 
   /* Radii */
-  --radius-small: 2px;
-  --radius-badges: 4px;
-  --radius-inputs: 6px;
-  --radius-buttons: 6px;
-  --radius-cards: 12px;
+  --radius-small: 4px;
+  --radius-badges: 6px;
+  --radius-inputs: 12px;
+  --radius-buttons: 9999px;
+  --radius-cards: 20px;
   --radius-pills: 9999px;
 
-  /* Shadows */
-  --shadow-sm: rgba(0, 0, 0, 0.4) 0px 2px 4px 0px;
-  --shadow-subtle: rgb(35, 37, 42) 0px 0px 0px 1px inset;
-  --shadow-subtle-2: rgba(0, 0, 0, 0.2) 0px 0px 0px 1px;
-  --shadow-xl: rgba(8, 9, 10, 0.6) 0px 4px 32px 0px;
+  /* Shadows — warm-tinted, hairline-first; only floating/elevated surfaces (toasts, popovers,
+     the demo-mode toggle) get real elevation. */
+  --shadow-sm: rgba(28, 23, 18, 0.1) 0px 1px 3px 0px;
+  --shadow-subtle: rgba(28, 23, 18, 0.09) 0px 0px 0px 1px inset;
+  --shadow-subtle-2: rgba(28, 23, 18, 0.12) 0px 0px 0px 1px;
+  --shadow-xl: rgba(28, 23, 18, 0.16) 0px 20px 25px -5px, rgba(28, 23, 18, 0.1) 0px 8px 10px -6px;
 }
 
 html {
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 body {

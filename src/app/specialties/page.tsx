@@ -25,7 +25,7 @@ export default function SpecialtiesPage() {
 
   return (
     <main className="mx-auto w-full max-w-[1200px] flex-1 px-6 py-16">
-      <h1 className="text-heading-sm font-[510] text-paper">All-Specialty Competition Ratios</h1>
+      <h1 className="text-heading-sm font-serif font-normal text-paper">All-Specialty Competition Ratios</h1>
       <p className="mt-2 max-w-2xl text-body-sm text-fog">
         Round 1 applications-per-post, 2024 vs 2025. Source: NHS England official competition
         ratios archive. Every specialty got harder 2024 → 2025 — several dramatically.
@@ -105,7 +105,7 @@ export default function SpecialtiesPage() {
         </div>
       )}
 
-      <h2 className="mt-16 text-subheading font-[510] text-paper">Selection mechanisms</h2>
+      <h2 className="mt-16 text-subheading font-serif font-normal text-paper">Selection mechanisms</h2>
       <div className="mt-4 space-y-3">
         {SELECTION_MECHANISMS.map((m) => (
           <div key={m.specialty} className="rounded-cards bg-carbon p-4 shadow-subtle">
@@ -120,7 +120,7 @@ export default function SpecialtiesPage() {
         CPS). {MSRA_MINIMUM_STANDARD.note}
       </p>
 
-      <h2 className="mt-16 text-subheading font-[510] text-paper">Inter-deanery transfer patterns</h2>
+      <h2 className="mt-16 text-subheading font-serif font-normal text-paper">Inter-deanery transfer patterns</h2>
       <p className="mt-2 max-w-2xl text-body-sm text-fog">{IDT_CAVEAT}</p>
       <div className="mt-4 space-y-3">
         {IDT_NOTES.map((n) => (
@@ -128,7 +128,7 @@ export default function SpecialtiesPage() {
             <div className="flex items-center gap-2">
               <p className="font-[510] text-paper">{n.specialty}</p>
               {!n.hasSignal && (
-                <span className="rounded-badges bg-white/5 px-[6px] text-label text-fog">no signal</span>
+                <span className="rounded-badges bg-black/[0.045] px-[6px] text-label text-fog">no signal</span>
               )}
             </div>
             <p className="mt-1 text-body-sm text-fog">{n.note}</p>
@@ -136,7 +136,7 @@ export default function SpecialtiesPage() {
         ))}
       </div>
 
-      <h2 className="mt-16 text-subheading font-[510] text-paper">Sources</h2>
+      <h2 className="mt-16 text-subheading font-serif font-normal text-paper">Sources</h2>
       <p className="mt-2 max-w-2xl text-body-sm text-fog">
         Every number on this page is drawn from an official source, not estimated. Competition
         ratios for every specialty come from NHS England&apos;s own archive; the per-specialty

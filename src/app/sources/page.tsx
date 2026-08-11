@@ -5,7 +5,7 @@ import { TIMELINES_SOURCE_NOTE } from "@/lib/data/specialty-timelines";
 export default function SourcesPage() {
   return (
     <main className="mx-auto w-full max-w-2xl flex-1 px-6 py-16">
-      <h1 className="text-heading-sm font-[510] text-paper">Sources</h1>
+      <h1 className="text-heading-sm font-serif font-normal text-paper">Sources</h1>
       <p className="mt-2 text-body-sm text-fog">
         Every scoring matrix, competition ratio, and deadline in Shortlisted is drawn from an
         official NHS England, deanery, or Royal College page — never invented or guessed. This

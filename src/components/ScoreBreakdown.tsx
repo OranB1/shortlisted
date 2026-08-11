@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "motion/react";
 import { ScoreRing } from "@/components/ScoreRing";
 
 type Band = { points: number; label: string };
@@ -20,18 +19,18 @@ export function ScoreBreakdown({
   subtitle: React.ReactNode;
 }) {
   return (
-    <div className="rounded-cards bg-obsidian p-4 shadow-xl">
+    <div className="rounded-cards border border-peach-ink/10 bg-obsidian p-4 shadow-xl">
       <div className="flex items-center gap-3">
         <ScoreRing
           value={total}
           max={max}
           size={44}
           strokeWidth={5}
-          label={<span className="font-mono text-[13px] text-paper">{total}</span>}
+          label={<span className="font-mono text-[13px] text-peach-ink">{total}</span>}
         />
         <div>
-          <p className="text-caption text-ash">{subtitle}</p>
-          <p className="font-mono text-[20px] text-paper">
+          <p className="text-caption text-peach-ink/65">{subtitle}</p>
+          <p className="font-mono text-[20px] text-peach-ink">
             {total} / {max}
           </p>
         </div>
@@ -48,20 +47,19 @@ export function ScoreBreakdown({
           return (
             <div key={domain.id}>
               <div className="flex items-center justify-between gap-2 text-body-sm">
-                <span className="text-mist">{domain.label}</span>
-                <span className="font-mono text-caption text-fog">
+                <span className="text-peach-ink">{domain.label}</span>
+                <span className="font-mono text-caption text-peach-ink/70">
                   {points} / {domain.maxPoints}
                 </span>
               </div>
-              <div className="mt-1 h-[5px] overflow-hidden rounded-pills bg-graphite">
-                <motion.div
-                  className="h-full rounded-pills bg-acid-lime"
-                  animate={{ width: `${pct}%` }}
-                  transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+              <div className="mt-1 h-[5px] overflow-hidden rounded-pills bg-peach-ink/15">
+                <div
+                  className="h-full rounded-pills bg-peach-ink transition-[width] duration-400 ease-out"
+                  style={{ width: `${pct}%` }}
                 />
               </div>
               {nextBand && (
-                <p className="mt-1 text-caption text-ash">
+                <p className="mt-1 text-caption text-peach-ink/60">
                   +{nextBand.points - points} available — {nextBand.label}
                 </p>
               )}

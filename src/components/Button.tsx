@@ -9,7 +9,7 @@ export type ButtonSize = "sm" | "md" | "lg";
 const VARIANT_CLASS: Record<ButtonVariant, string> = {
   primary: "rounded-buttons bg-acid-lime text-void hover:opacity-90",
   secondary: "rounded-buttons border border-graphite text-mist hover:border-smoke hover:text-paper",
-  destructive: "rounded-buttons bg-coral-red text-paper hover:opacity-90",
+  destructive: "rounded-buttons bg-coral-red text-void hover:opacity-90",
   ghost: "rounded-buttons text-mist hover:text-paper",
   pill: "rounded-pills bg-bone text-void hover:opacity-90",
 };

@@ -123,7 +123,7 @@ export default function PortfolioForm() {
       </div>
 
       {loaded && !user && (
-        <div className="rounded-cards border border-dashed border-graphite bg-white/[0.02] p-4 text-body-sm text-fog">
+        <div className="rounded-cards border border-dashed border-graphite bg-black/[0.02] p-4 text-body-sm text-fog">
           <Link href="/login" className="font-[510] text-paper underline">
             Sign in
           </Link>{" "}
@@ -151,7 +151,7 @@ export default function PortfolioForm() {
                     <ChoiceboxItemTitle>
                       <span
                         className={`mr-2 inline-block w-6 shrink-0 rounded-badges text-center font-mono text-label transition-colors ${
-                          isSelected ? "bg-acid-lime/15 text-acid-lime" : "bg-white/5 text-fog shadow-subtle-2"
+                          isSelected ? "bg-acid-lime/15 text-acid-lime" : "bg-black/[0.045] text-fog shadow-subtle-2"
                         }`}
                       >
                         {band.points}
@@ -167,7 +167,7 @@ export default function PortfolioForm() {
         </fieldset>
       ))}
 
-      <label className="flex cursor-pointer items-start gap-3 rounded-cards border border-dashed border-graphite bg-white/[0.02] p-4 text-body-sm">
+      <label className="flex cursor-pointer items-start gap-3 rounded-cards border border-dashed border-graphite bg-black/[0.02] p-4 text-body-sm">
         <input
           type="checkbox"
           checked={uniqueApplicant}

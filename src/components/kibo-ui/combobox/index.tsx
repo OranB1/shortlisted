@@ -106,7 +106,7 @@ export const ComboboxTrigger = ({ className, children, ...props }: ComboboxTrigg
         ref={ref}
         type="button"
         className={cn(
-          "flex w-full items-center justify-between gap-2 rounded-inputs border border-white/[0.08] bg-white/[0.02] px-[14px] py-[12px] text-left text-[14px] text-mist transition-colors focus:border-mist focus:outline-none",
+          "flex w-full items-center justify-between gap-2 rounded-inputs border border-graphite bg-black/[0.025] px-[14px] py-[12px] text-left text-[14px] text-mist transition-colors focus:border-mist focus:outline-none",
           open && "border-mist",
           className
         )}
@@ -205,7 +205,7 @@ export const ComboboxItem = ({ className, children, value, ...props }: ComboboxI
         onOpenChange(false);
       }}
       className={cn(
-        "flex cursor-pointer items-center justify-between gap-2 rounded-inputs px-3 py-2 text-body-sm text-mist outline-none data-[selected=true]:bg-white/5 data-[selected=true]:text-paper",
+        "flex cursor-pointer items-center justify-between gap-2 rounded-inputs px-3 py-2 text-body-sm text-mist outline-none data-[selected=true]:bg-black/[0.045] data-[selected=true]:text-paper",
         className
       )}
       {...props}

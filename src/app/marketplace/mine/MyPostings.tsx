@@ -21,11 +21,11 @@ type Application = Tables<"opportunity_applications"> & {
 };
 
 const STATUS_STYLES: Record<string, string> = {
-  submitted: "bg-white/5 text-fog",
+  submitted: "bg-black/[0.045] text-fog",
   shortlisted: "bg-iris-violet/15 text-iris-violet",
   accepted: "bg-pulse-green/15 text-pulse-green",
   rejected: "bg-coral-red/15 text-coral-red",
-  withdrawn: "bg-white/5 text-ash",
+  withdrawn: "bg-black/[0.045] text-ash",
 };
 
 export default function MyPostings() {
@@ -160,7 +160,7 @@ export default function MyPostings() {
               <div key={a.id} className="rounded-cards bg-carbon p-4 shadow-subtle">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex items-start gap-3">
-                    <div className="h-10 w-10 shrink-0 overflow-hidden rounded-pills bg-white/5">
+                    <div className="h-10 w-10 shrink-0 overflow-hidden rounded-pills bg-black/[0.045]">
                       {a.applicantProfile?.avatar_url ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img src={a.applicantProfile.avatar_url} alt="" className="h-full w-full object-cover" />
@@ -180,7 +180,7 @@ export default function MyPostings() {
 
                 {a.applicantProfile?.bio && <p className="mt-3 text-body-sm text-mist">{a.applicantProfile.bio}</p>}
                 {a.cover_note && (
-                  <p className="mt-2 rounded-inputs bg-white/[0.02] p-3 text-body-sm text-mist">{a.cover_note}</p>
+                  <p className="mt-2 rounded-inputs bg-black/[0.02] p-3 text-body-sm text-mist">{a.cover_note}</p>
                 )}
 
                 <div className="mt-3 flex flex-wrap items-center gap-2">

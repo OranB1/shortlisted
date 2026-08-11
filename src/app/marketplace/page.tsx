@@ -6,7 +6,7 @@ export default function MarketplacePage() {
     <main className="mx-auto w-full max-w-[1200px] flex-1 px-6 py-16">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-heading-sm font-[510] text-paper">Opportunities</h1>
+          <h1 className="text-heading-sm font-serif font-normal text-paper">Opportunities</h1>
           <p className="mt-2 text-body-sm text-fog">QIPs, audits, research, and presentations from doctors near you.</p>
         </div>
         <div className="flex gap-3">

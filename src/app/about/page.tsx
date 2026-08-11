@@ -15,7 +15,7 @@ export default function AboutPage() {
   return (
     <main className="mx-auto w-full max-w-[1200px] flex-1 px-6 py-16">
       <section className="max-w-2xl">
-        <h1 className="text-heading-sm font-[510] text-paper">About Shortlisted</h1>
+        <h1 className="text-heading-sm font-serif font-normal text-paper">About Shortlisted</h1>
         <p className="mt-6 text-body text-fog">
           UK specialty training is more competitive than ever, and applicants are starting
           portfolio-building earlier every year — against self-assessment matrices that differ by
@@ -35,7 +35,7 @@ export default function AboutPage() {
         <div className="mt-6 grid gap-6 sm:grid-cols-2">
           {FOUNDERS.map((f) => (
             <div key={f.name} className="rounded-cards bg-carbon p-6 shadow-subtle">
-              <div className="h-12 w-12 rounded-pills bg-white/5" />
+              <div className="h-12 w-12 rounded-pills bg-black/[0.045]" />
               <h3 className="mt-4 text-[17px] font-[510] text-paper">{f.name}</h3>
               <p className="text-caption text-ash">{f.role}</p>
               <p className="mt-3 text-body-sm text-fog">{f.bio}</p>
