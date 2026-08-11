@@ -29,7 +29,7 @@ export function ScoreBreakdown({
           label={<span className="font-mono text-[13px] text-peach-ink">{total}</span>}
         />
         <div>
-          <p className="text-caption text-peach-ink/65">{subtitle}</p>
+          <p className="text-caption text-peach-ink-muted">{subtitle}</p>
           <p className="font-mono text-[20px] text-peach-ink">
             {total} / {max}
           </p>
@@ -48,7 +48,7 @@ export function ScoreBreakdown({
             <div key={domain.id}>
               <div className="flex items-center justify-between gap-2 text-body-sm">
                 <span className="text-peach-ink">{domain.label}</span>
-                <span className="font-mono text-caption text-peach-ink/70">
+                <span className="font-mono text-caption text-peach-ink-muted">
                   {points} / {domain.maxPoints}
                 </span>
               </div>
@@ -59,7 +59,7 @@ export function ScoreBreakdown({
                 />
               </div>
               {nextBand && (
-                <p className="mt-1 text-caption text-peach-ink/60">
+                <p className="mt-1 text-caption text-peach-ink-muted">
                   +{nextBand.points - points} available — {nextBand.label}
                 </p>
               )}

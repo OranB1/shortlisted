@@ -25,7 +25,11 @@
   --color-iris-violet: #4d4fce;
   --color-lavender: #7a49cf;
   --color-peach: #f3c39a; /* editorial highlight accent, used sparingly */
-  --color-peach-ink: #7a3a12; /* ink for text on peach */
+  --color-peach-ink: #7a3a12; /* ink for text on peach — 7.2:1 */
+  --color-peach-ink-muted: #8a4a1f; /* de-emphasized text on peach — 5.7:1. Opacity variants of
+    peach-ink (text-peach-ink/50 etc) look like a lighter shade but actually blend toward the
+    peach card behind them, which drops contrast as low as 2.4:1 — a solid, deliberately-mixed
+    color is the only way to get "lighter but still legible" on a colored (non-white) surface. */
 
   /* Fonts */
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, sans-serif;

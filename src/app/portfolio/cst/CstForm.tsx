@@ -98,7 +98,7 @@ export default function CstForm() {
         <p className="text-body-sm text-peach-ink">
           Answered {answeredCount} / {totalComponents} scored components
         </p>
-        <p className="mt-1 text-caption text-peach-ink/70">
+        <p className="mt-1 text-caption text-peach-ink-muted">
           Remember — only 2 of your 5 domains will actually be examined at interview.
         </p>
       </div>

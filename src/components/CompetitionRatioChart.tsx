@@ -108,7 +108,7 @@ export function CompetitionRatioChart({ data }: { data: SpecialtyRatioYear[] }) 
                   <span>
                     2024 <span className="font-mono">{s.ratio2024.toFixed(1)}:1</span>
                   </span>
-                  <span className="text-peach-ink/50">&rarr;</span>
+                  <span className="text-peach-ink-muted">&rarr;</span>
                   <span>
                     2025 <span className="font-mono">{s.ratio2025.toFixed(1)}:1</span>
                   </span>
