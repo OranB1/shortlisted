@@ -13,7 +13,7 @@
   --color-obsidian: #fbe8d2; /* rare warm accent card (score totals, sticky emphasis) */
   --color-graphite: #e7ded0; /* hairline border */
   --color-smoke: #d3c6b2; /* stronger border / hover */
-  --color-ash: #9a8f7c; /* tertiary text, captions, labels */
+  --color-ash: #786d5c; /* tertiary text, captions, labels — 5:1 on white, was 3.2:1 (illegible) */
   --color-fog: #6f6555; /* secondary text */
   --color-mist: #3b352b; /* primary body/UI text */
   --color-bone: #1f1a14; /* dark ink fill (pill button) */
