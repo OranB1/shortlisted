@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { signOut } from "@/app/auth/actions";
@@ -22,7 +23,15 @@ export default async function NavBar() {
   return (
     <header className="border-b-[0.5px] border-graphite bg-void">
       <nav className="mx-auto flex max-w-[1200px] items-center gap-6 px-6 py-4">
-        <Link href="/" className="font-serif text-[19px] text-paper">
+        <Link href="/" className="flex items-center gap-2 font-serif text-[19px] text-paper">
+          <Image
+            src="/brand/logomark-progress-ring-transparent.png"
+            alt=""
+            width={26}
+            height={26}
+            className="shrink-0"
+            priority
+          />
           Shortlisted
         </Link>
         <div className="flex flex-1 gap-2">

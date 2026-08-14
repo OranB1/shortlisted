@@ -1,3 +1,4 @@
+import Image from "next/image";
 import {
   SPECIALTY_RATIOS,
   SELECTION_MECHANISMS,
@@ -30,6 +31,23 @@ export default function SpecialtiesPage() {
         Round 1 applications-per-post, 2024 vs 2025. Source: NHS England official competition
         ratios archive. Every specialty got harder 2024 → 2025 — several dramatically.
       </p>
+
+      {/* Decorative only (alt=""). Sized at the source image's own aspect ratio (5536×3001)
+          rather than cropped into a short wide banner — the diagram is a sparse node graph with
+          labels spread across its full height, so a short object-cover crop reliably lands on
+          empty space between nodes (confirmed by rendering it full-size: labels are real, but
+          nowhere near dense enough to guarantee a short horizontal slice catches any of them).
+          Capping the width instead keeps the whole labelled diagram visible at a height that
+          still can't push the chart/table below the fold. */}
+      <div className="relative mt-6 w-full max-w-xs overflow-hidden rounded-cards border border-graphite aspect-[5536/3001] sm:max-w-sm">
+        <Image
+          src="/brand/constellation-labelled.png"
+          alt=""
+          fill
+          sizes="384px"
+          className="object-contain"
+        />
+      </div>
 
       <div className="mt-8">
         <CompetitionRatioChart data={SPECIALTY_RATIOS} />
