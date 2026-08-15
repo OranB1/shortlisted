@@ -1,4 +1,3 @@
-import Image from "next/image";
 import {
   SPECIALTY_RATIOS,
   SELECTION_MECHANISMS,
@@ -7,7 +6,7 @@ import {
 } from "@/lib/data/all-specialty-ratios";
 import { IDT_NOTES, IDT_CAVEAT } from "@/lib/data/inter-deanery-transfers";
 import { projectNextCycleRatio, impliedTopPercentFromRatio, estimateGpMsraScoreTarget } from "@/lib/projection";
-import { CompetitionRatioChart } from "@/components/CompetitionRatioChart";
+import { SpecialtyConstellation } from "@/components/SpecialtyConstellation";
 import { Sources } from "@/components/Sources";
 import { COMPETITION_RATIOS_SOURCE_URL, SPECIALTY_SOURCES } from "@/lib/data/sources";
 
@@ -28,29 +27,12 @@ export default function SpecialtiesPage() {
     <main className="mx-auto w-full max-w-[1200px] flex-1 px-6 py-16">
       <h1 className="text-heading-sm font-serif font-normal text-paper">All-Specialty Competition Ratios</h1>
       <p className="mt-2 max-w-2xl text-body-sm text-fog">
-        Round 1 applications-per-post, 2024 vs 2025. Source: NHS England official competition
-        ratios archive. Every specialty got harder 2024 → 2025 — several dramatically.
+        Round 1 applications-per-post, 2024 vs 2025, NHS England official data. Click a specialty
+        to see its ratio, how it&apos;s scored, and where to score your own portfolio.
       </p>
 
-      {/* Decorative only (alt=""). Sized at the source image's own aspect ratio (5536×3001)
-          rather than cropped into a short wide banner — the diagram is a sparse node graph with
-          labels spread across its full height, so a short object-cover crop reliably lands on
-          empty space between nodes (confirmed by rendering it full-size: labels are real, but
-          nowhere near dense enough to guarantee a short horizontal slice catches any of them).
-          Capping the width instead keeps the whole labelled diagram visible at a height that
-          still can't push the chart/table below the fold. */}
-      <div className="relative mt-6 w-full max-w-xs overflow-hidden rounded-cards border border-graphite aspect-[5536/3001] sm:max-w-sm">
-        <Image
-          src="/brand/constellation-labelled.png"
-          alt=""
-          fill
-          sizes="384px"
-          className="object-contain"
-        />
-      </div>
-
-      <div className="mt-8">
-        <CompetitionRatioChart data={SPECIALTY_RATIOS} />
+      <div className="mt-6">
+        <SpecialtyConstellation />
       </div>
 
       <div className="mt-8 overflow-x-auto rounded-cards bg-carbon shadow-subtle">
