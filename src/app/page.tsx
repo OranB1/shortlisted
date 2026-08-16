@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import { Check, Circle, ArrowRight } from "lucide-react";
 import { Button } from "@/components/Button";
@@ -58,22 +57,8 @@ const EXPLORE_CARDS = [
 export default function Home() {
   return (
     <main className="mx-auto w-full max-w-[1200px] flex-1 px-6 py-24">
-      <section className="relative z-0 overflow-hidden lg:flex lg:items-center lg:gap-16">
-        {/* Decorative only (alt=""), hidden below lg where the hero stacks to one column — at
-            that width the image would sit directly behind the score card rather than beside it
-            and read as clutter rather than atmosphere. `relative z-0` on the section (not just
-            `relative`) gives this absolutely-positioned layer its own stacking context, so it
-            can't end up painting behind the page's own background. */}
-        <Image
-          src="/brand/hero-converging-paths.png"
-          alt=""
-          fill
-          priority
-          sizes="(min-width: 1024px) 1200px, 0px"
-          className="pointer-events-none absolute inset-0 hidden object-cover object-right opacity-[0.14] lg:block"
-        />
-
-        <div className="relative z-10 max-w-2xl lg:flex-1">
+      <section className="lg:flex lg:items-center lg:gap-16">
+        <div className="max-w-2xl lg:flex-1">
           <span className="inline-flex items-center gap-2 rounded-pills bg-black/[0.045] px-3 py-[6px] text-label text-fog">
             <span className="h-1.5 w-1.5 rounded-full bg-pulse-green" />
             Live: verified scoring for 7 specialties
@@ -89,7 +74,7 @@ export default function Home() {
           </Button>
         </div>
 
-        <div className="relative z-10 mt-16 lg:mt-0 lg:w-[380px] lg:shrink-0">
+        <div className="mt-16 lg:mt-0 lg:w-[380px] lg:shrink-0">
           <div className="rounded-cards bg-carbon p-6 shadow-subtle">
             <p className="text-caption text-ash">Your portfolio, scored</p>
             <ul className="mt-4 space-y-3">

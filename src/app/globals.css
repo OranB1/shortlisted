@@ -111,3 +111,13 @@ body {
     transform: translateY(0);
   }
 }
+
+@keyframes star-twinkle {
+  0%, 100% { opacity: var(--twinkle-min, 0.2); }
+  50% { opacity: var(--twinkle-max, 0.9); }
+}
+
+@keyframes node-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.55; }
+  50% { transform: scale(1.35); opacity: 0.15; }
+}

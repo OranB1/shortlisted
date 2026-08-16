@@ -5,7 +5,7 @@
 // been built independently at different times. Rather than rename keys across three files with
 // existing call sites, this file owns the one explicit mapping between them, so the mismatch is
 // fixed in exactly one place. Also owns the constellation's hand-authored layout (positions,
-// clustering, edges) — see the note above CONSTELLATION_EDGES for what the edges do and don't mean.
+// clustering, edges) — see the note above SPECIALTY_FAMILY for what the clustering is based on.
 
 import {
   SPECIALTY_RATIOS,
@@ -65,16 +65,80 @@ function coverageFor(specialty: string): { tier: CoverageTier; portfolioHref?: s
   return fromSecondary?.coverage ?? { tier: "indicative" };
 }
 
+// Which clinical family each specialty belongs to — this drives the constellation's clustering
+// and edges now, replacing an earlier version grouped by *our own data coverage* (which specialty
+// pages happened to be built), swapped out because proximity/connection on the map should reflect
+// something true about the specialties themselves, not the state of this app's backlog. Grouped
+// the way UK medical training broadly divides: physician ("medicine") specialties, surgical
+// specialties, the two pure-diagnostic specialties, the two acute/resuscitation specialties, and
+// community/reproductive health. Paediatrics sits under medicine (it's a physician specialty
+// defined by patient age, not organ system); O&G and Ophthalmology sit under surgery (both are
+// operative specialties recruited via a surgical-style portfolio+interview, whatever RCOG/RCOphth
+// membership technicalities say).
+export type SpecialtyFamily = "medicine" | "surgery" | "diagnostics" | "acute" | "community";
+
+export const FAMILY_LABEL: Record<SpecialtyFamily, string> = {
+  medicine: "Medicine",
+  surgery: "Surgery",
+  diagnostics: "Diagnostics",
+  acute: "Acute & resuscitation",
+  community: "Community & reproductive health",
+};
+
+const FAMILY: Record<string, SpecialtyFamily> = {
+  "Internal Medicine Training CT1": "medicine",
+  "Core Psychiatry Training CT1": "medicine",
+  "Public Health Medicine ST1": "medicine",
+  "General Practice ST1": "medicine",
+  "Paediatrics ST1": "medicine",
+  "Core Surgical Training CT1": "surgery",
+  "Cardiothoracic Surgery ST1": "surgery",
+  "Neurosurgery ST1": "surgery",
+  "Oral & Maxillo Facial Surgery ST1": "surgery",
+  "Obstetrics & Gynaecology ST1": "surgery",
+  "Ophthalmology ST1": "surgery",
+  "Clinical Radiology ST1": "diagnostics",
+  "Histopathology ST1": "diagnostics",
+  "ACCS Emergency Medicine CT1/ST1": "acute",
+  "Anaesthetics CT1": "acute",
+  "Community Sexual & Reproductive Health ST1": "community",
+  "GP & Public Health Dual CCT ST1": "community",
+};
+
 export type ConstellationNode = {
   id: string; // slug, also used as the edge-graph key
   ratios: SpecialtyRatioYear;
   mechanism?: string;
   tier: CoverageTier;
+  family: SpecialtyFamily;
   portfolioHref?: string;
   likelihoodHref?: string;
-  /** Position as a percentage of the canvas (0-100), hand-placed — see CONSTELLATION_EDGES. */
+  /** Short label for the cramped canvas (the drawer still shows the full name) — matches
+      abbreviations already used elsewhere in this app (IMT, CST, O&G). */
+  mapLabel: string;
+  /** Position as a percentage of the canvas (0-100), hand-placed — see LAYOUT below. */
   x: number;
   y: number;
+};
+
+const MAP_LABEL: Record<string, string> = {
+  "Internal Medicine Training CT1": "IMT",
+  "Core Psychiatry Training CT1": "Psychiatry",
+  "Public Health Medicine ST1": "Public Health",
+  "General Practice ST1": "GP",
+  "Paediatrics ST1": "Paediatrics",
+  "Core Surgical Training CT1": "CST",
+  "Cardiothoracic Surgery ST1": "Cardiothoracic",
+  "Neurosurgery ST1": "Neurosurgery",
+  "Oral & Maxillo Facial Surgery ST1": "OMFS",
+  "Obstetrics & Gynaecology ST1": "O&G",
+  "Ophthalmology ST1": "Ophthalmology",
+  "Clinical Radiology ST1": "Radiology",
+  "Histopathology ST1": "Histopathology",
+  "ACCS Emergency Medicine CT1/ST1": "ACCS EM",
+  "Anaesthetics CT1": "Anaesthetics",
+  "Community Sexual & Reproductive Health ST1": "CSRH",
+  "GP & Public Health Dual CCT ST1": "GP+PH Dual",
 };
 
 function slug(specialty: string): string {
@@ -85,33 +149,39 @@ function slug(specialty: string): string {
     .replace(/(^-|-$)/g, "");
 }
 
-// Hand-placed rather than force-simulated: 17 fixed nodes is small enough that a manual layout
-// gives a cleaner, more legible result than a runtime physics simulation, and it's stable across
-// renders/SSR (a seeded or random layout would either fight hydration or reshuffle on every
-// visit). Loosely clustered by scoring tier — verified-scoring specialties sit together, as do
-// the confirmed-MSRA-only ones and the indicative ones — so proximity on the map reflects a real
-// property (how well-covered the specialty is) rather than nothing at all.
+export const HUB_ID = "specialties-hub";
+export const HUB_POSITION = { x: 50, y: 50 };
+
+// Hand-placed rather than force-simulated (17 fixed nodes is small enough that a manual layout
+// reads cleaner and stays stable across renders than a runtime physics simulation would). Five
+// families radiate out from the central hub like petals — medicine straight up, then surgery,
+// diagnostics, acute, and community spaced roughly 72° apart going clockwise — with each family's
+// own specialties fanned out within its wedge. Every pair is kept at least ~13 units apart (this
+// is a 0-100 grid) specifically so labels don't collide — a tighter first attempt had two labels
+// overlapping into unreadable text, so this is deliberately generous rather than visually tight.
 const LAYOUT: Record<string, { x: number; y: number }> = {
-  "internal-medicine-training-ct1": { x: 50, y: 50 }, // the one verified_scoring_and_likelihood hub
-  // verified scoring — upper-left cluster
-  "core-surgical-training-ct1": { x: 22, y: 20 },
-  "paediatrics-st1": { x: 32, y: 10 },
-  "clinical-radiology-st1": { x: 42, y: 18 },
-  "ophthalmology-st1": { x: 14, y: 34 },
-  "cardiothoracic-surgery-st1": { x: 30, y: 34 },
-  "histopathology-st1": { x: 20, y: 47 },
-  // confirmed no portfolio (pure MSRA/interview) — right cluster
-  "general-practice-st1": { x: 82, y: 22 },
-  "core-psychiatry-training-ct1": { x: 92, y: 36 },
-  "accs-emergency-medicine-ct1-st1": { x: 70, y: 28 },
-  "anaesthetics-ct1": { x: 78, y: 46 },
-  "obstetrics-and-gynaecology-st1": { x: 88, y: 56 },
-  // indicative-only — lower cluster
-  "community-sexual-and-reproductive-health-st1": { x: 34, y: 78 },
-  "public-health-medicine-st1": { x: 46, y: 68 },
-  "gp-and-public-health-dual-cct-st1": { x: 56, y: 68 },
-  "neurosurgery-st1": { x: 50, y: 84 },
-  "oral-and-maxillo-facial-surgery-st1": { x: 64, y: 78 },
+  // medicine — top
+  "internal-medicine-training-ct1": { x: 50, y: 8 },
+  "core-psychiatry-training-ct1": { x: 74, y: 14 },
+  "public-health-medicine-st1": { x: 26, y: 14 },
+  "general-practice-st1": { x: 36, y: 26 },
+  "paediatrics-st1": { x: 64, y: 26 },
+  // surgery — right
+  "core-surgical-training-ct1": { x: 86, y: 22 },
+  "cardiothoracic-surgery-st1": { x: 92, y: 38 },
+  "neurosurgery-st1": { x: 88, y: 54 },
+  "oral-and-maxillo-facial-surgery-st1": { x: 78, y: 68 },
+  "obstetrics-and-gynaecology-st1": { x: 62, y: 76 },
+  "ophthalmology-st1": { x: 72, y: 42 },
+  // diagnostics — bottom right
+  "clinical-radiology-st1": { x: 68, y: 88 },
+  "histopathology-st1": { x: 44, y: 92 },
+  // acute — bottom left
+  "accs-emergency-medicine-ct1-st1": { x: 24, y: 86 },
+  "anaesthetics-ct1": { x: 10, y: 74 },
+  // community — left
+  "community-sexual-and-reproductive-health-st1": { x: 8, y: 52 },
+  "gp-and-public-health-dual-cct-st1": { x: 14, y: 30 },
 };
 
 export const CONSTELLATION_NODES: ConstellationNode[] = SPECIALTY_RATIOS.map((ratios) => {
@@ -123,6 +193,8 @@ export const CONSTELLATION_NODES: ConstellationNode[] = SPECIALTY_RATIOS.map((ra
     ratios,
     mechanism: SELECTION_MECHANISMS.find((m) => m.specialty === MECHANISM_KEY[ratios.specialty])?.mechanism,
     tier: coverage.tier,
+    family: FAMILY[ratios.specialty] ?? "medicine",
+    mapLabel: MAP_LABEL[ratios.specialty] ?? ratios.specialty,
     portfolioHref: coverage.portfolioHref,
     likelihoodHref: coverage.likelihoodHref,
     x: pos.x,
@@ -130,34 +202,33 @@ export const CONSTELLATION_NODES: ConstellationNode[] = SPECIALTY_RATIOS.map((ra
   };
 });
 
-// Edges are informational grouping, not a claim that two specialties are "related" in any
-// clinical or career sense — they connect each node to its nearest neighbour(s) within the same
-// scoring-coverage tier (plus a few spokes from the IMT hub to each cluster), so the constellation
-// shape itself communicates "these are scored the same way" the way real constellations connect
-// stars with no physical relationship, just a recognisable shared pattern.
+// Every specialty connects back to the central "Specialties" hub (your idea), plus a chain
+// linking it to its nearest same-family neighbour — so the map reads as five branches radiating
+// out, each branch a real clinical grouping, rather than a flat ring or an arbitrary web.
 export const CONSTELLATION_EDGES: [string, string][] = [
-  // hub spokes
-  ["internal-medicine-training-ct1", "core-surgical-training-ct1"],
-  ["internal-medicine-training-ct1", "accs-emergency-medicine-ct1-st1"],
+  // hub -> nearest node of each family
+  [HUB_ID, "internal-medicine-training-ct1"],
+  [HUB_ID, "core-surgical-training-ct1"],
+  [HUB_ID, "clinical-radiology-st1"],
+  [HUB_ID, "accs-emergency-medicine-ct1-st1"],
+  [HUB_ID, "gp-and-public-health-dual-cct-st1"],
+  // medicine chain
+  ["internal-medicine-training-ct1", "core-psychiatry-training-ct1"],
   ["internal-medicine-training-ct1", "public-health-medicine-st1"],
-  // verified-scoring cluster
-  ["core-surgical-training-ct1", "paediatrics-st1"],
-  ["paediatrics-st1", "clinical-radiology-st1"],
+  ["internal-medicine-training-ct1", "general-practice-st1"],
+  ["internal-medicine-training-ct1", "paediatrics-st1"],
+  // surgery chain
   ["core-surgical-training-ct1", "ophthalmology-st1"],
   ["core-surgical-training-ct1", "cardiothoracic-surgery-st1"],
-  ["cardiothoracic-surgery-st1", "histopathology-st1"],
-  ["ophthalmology-st1", "histopathology-st1"],
-  // confirmed-no-portfolio cluster
-  ["accs-emergency-medicine-ct1-st1", "general-practice-st1"],
-  ["general-practice-st1", "core-psychiatry-training-ct1"],
-  ["accs-emergency-medicine-ct1-st1", "anaesthetics-ct1"],
-  ["anaesthetics-ct1", "obstetrics-and-gynaecology-st1"],
-  ["core-psychiatry-training-ct1", "obstetrics-and-gynaecology-st1"],
-  // indicative cluster
-  ["public-health-medicine-st1", "community-sexual-and-reproductive-health-st1"],
-  ["public-health-medicine-st1", "gp-and-public-health-dual-cct-st1"],
-  ["gp-and-public-health-dual-cct-st1", "neurosurgery-st1"],
+  ["cardiothoracic-surgery-st1", "neurosurgery-st1"],
   ["neurosurgery-st1", "oral-and-maxillo-facial-surgery-st1"],
+  ["oral-and-maxillo-facial-surgery-st1", "obstetrics-and-gynaecology-st1"],
+  // diagnostics chain
+  ["clinical-radiology-st1", "histopathology-st1"],
+  // acute chain
+  ["accs-emergency-medicine-ct1-st1", "anaesthetics-ct1"],
+  // community chain
+  ["gp-and-public-health-dual-cct-st1", "community-sexual-and-reproductive-health-st1"],
 ];
 
 export const TIER_LABEL: Record<CoverageTier, string> = {
