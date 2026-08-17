@@ -4,7 +4,16 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { User } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/client";
-import { TASK_TYPE_OPTIONS, EXPERIENCE_LEVEL_OPTIONS, type TaskType, type ExperienceLevel } from "@/lib/data/marketplace-options";
+import {
+  TASK_TYPE_OPTIONS,
+  EXPERIENCE_LEVEL_OPTIONS,
+  SKILL_OPTIONS,
+  AVAILABILITY_OPTIONS,
+  type TaskType,
+  type ExperienceLevel,
+  type Skill,
+  type AvailabilityHours,
+} from "@/lib/data/marketplace-options";
 import { PRIORITY_SPECIALTIES } from "@/lib/data/all-specialty-ratios";
 import { UK_DEANERIES } from "@/lib/data/deaneries";
 
@@ -30,10 +39,15 @@ export default function PostForm() {
   const [hospitalTrust, setHospitalTrust] = useState("");
   const [deaneryRegion, setDeaneryRegion] = useState("");
   const [minYearOfStudy, setMinYearOfStudy] = useState("");
-  const [requiredSkillsText, setRequiredSkillsText] = useState("");
+  const [requiredSkills, setRequiredSkills] = useState<Skill[]>([]);
+  const [preferredSkills, setPreferredSkills] = useState<Skill[]>([]);
   const [experienceLevel, setExperienceLevel] = useState<ExperienceLevel | "">("");
-  const [estimatedCommitment, setEstimatedCommitment] = useState("");
+  const [estimatedCommitment, setEstimatedCommitment] = useState<AvailabilityHours | "">("");
   const [deadline, setDeadline] = useState("");
+
+  function toggleSkill(list: Skill[], setList: (v: Skill[]) => void, skill: Skill) {
+    setList(list.includes(skill) ? list.filter((s) => s !== skill) : [...list, skill]);
+  }
 
   useEffect(() => {
     async function init() {
@@ -65,11 +79,6 @@ export default function PostForm() {
     setSaving(true);
     setError(null);
 
-    const requiredSkills = requiredSkillsText
-      .split(",")
-      .map((s) => s.trim())
-      .filter(Boolean);
-
     const { data, error: insertError } = await supabase
       .from("opportunities")
       .insert({
@@ -82,6 +91,7 @@ export default function PostForm() {
         deanery_region: deaneryRegion || null,
         min_year_of_study: minYearOfStudy || null,
         required_skills: requiredSkills.length ? requiredSkills : null,
+        preferred_skills: preferredSkills.length ? preferredSkills : null,
         experience_level: experienceLevel || null,
         estimated_commitment: estimatedCommitment || null,
         deadline: deadline || null,
@@ -209,14 +219,18 @@ export default function PostForm() {
           </div>
 
           <div>
-            <label className="block text-body-sm text-mist">Skills (comma separated)</label>
-            <input
-              type="text"
-              value={requiredSkillsText}
-              onChange={(e) => setRequiredSkillsText(e.target.value)}
-              placeholder="e.g. coding, statistics — leave blank if none required"
-              className={INPUT_CLASS}
-            />
+            <label className="block text-body-sm text-mist">Required skills</label>
+            <p className="mt-0.5 text-caption text-ash">
+              Only pick what a student truly can&apos;t do the task without — every one you add
+              filters out otherwise-good applicants.
+            </p>
+            <SkillChips selected={requiredSkills} onToggle={(s) => toggleSkill(requiredSkills, setRequiredSkills, s)} />
+          </div>
+
+          <div>
+            <label className="block text-body-sm text-mist">Preferred skills</label>
+            <p className="mt-0.5 text-caption text-ash">Nice-to-haves — these boost match ranking but don&apos;t exclude anyone.</p>
+            <SkillChips selected={preferredSkills} onToggle={(s) => toggleSkill(preferredSkills, setPreferredSkills, s)} />
           </div>
 
           <div>
@@ -240,13 +254,20 @@ export default function PostForm() {
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
               <label className="block text-body-sm text-mist">Estimated commitment</label>
-              <input
-                type="text"
-                value={estimatedCommitment}
-                onChange={(e) => setEstimatedCommitment(e.target.value)}
-                placeholder="e.g. 5 hrs/week for 8 weeks"
+              <select
                 className={INPUT_CLASS}
-              />
+                value={estimatedCommitment}
+                onChange={(e) => setEstimatedCommitment(e.target.value as AvailabilityHours | "")}
+              >
+                <option value="" className="bg-carbon">
+                  Not specified
+                </option>
+                {AVAILABILITY_OPTIONS.map((o) => (
+                  <option key={o.value} value={o.value} className="bg-carbon">
+                    {o.label}
+                  </option>
+                ))}
+              </select>
             </div>
             <div>
               <label className="block text-body-sm text-mist">Deadline to apply</label>
@@ -275,5 +296,27 @@ export default function PostForm() {
         {saving ? "Posting…" : "Post opportunity"}
       </button>
     </form>
+  );
+}
+
+function SkillChips({ selected, onToggle }: { selected: Skill[]; onToggle: (skill: Skill) => void }) {
+  return (
+    <div className="mt-2 flex flex-wrap gap-2">
+      {SKILL_OPTIONS.map((o) => {
+        const active = selected.includes(o.value);
+        return (
+          <button
+            key={o.value}
+            type="button"
+            onClick={() => onToggle(o.value)}
+            className={`rounded-pills border px-3 py-[6px] text-[13px] transition-colors ${
+              active ? "border-acid-lime bg-acid-lime/10 text-paper" : "border-graphite text-mist hover:border-smoke"
+            }`}
+          >
+            {o.label}
+          </button>
+        );
+      })}
+    </div>
   );
 }

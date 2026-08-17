@@ -34,7 +34,7 @@ export async function submitContactForm(
     try {
       const resend = new Resend(apiKey);
       await resend.emails.send({
-        from: "Shortlisted <onboarding@resend.dev>",
+        from: "Hitch <onboarding@resend.dev>",
         to: CONTACT_EMAIL_TO,
         replyTo: email,
         subject: `New contact message from ${name}`,

@@ -1,6 +1,5 @@
 // Generated from the live Supabase schema (project: Shortlisted, kewbwypnxwgjoouobjau).
 // Regenerate with the Supabase MCP's generate_typescript_types after any schema change.
-
 export type Json =
   | string
   | number
@@ -53,6 +52,7 @@ export type Database = {
           id: string
           min_year_of_study: string | null
           poster_id: string
+          preferred_skills: string[] | null
           required_skills: string[] | null
           specialty: string | null
           status: string
@@ -71,6 +71,7 @@ export type Database = {
           id?: string
           min_year_of_study?: string | null
           poster_id: string
+          preferred_skills?: string[] | null
           required_skills?: string[] | null
           specialty?: string | null
           status?: string
@@ -89,6 +90,7 @@ export type Database = {
           id?: string
           min_year_of_study?: string | null
           poster_id?: string
+          preferred_skills?: string[] | null
           required_skills?: string[] | null
           specialty?: string | null
           status?: string
@@ -195,6 +197,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          availability_hours: string | null
           avatar_url: string | null
           bio: string | null
           created_at: string
@@ -212,12 +215,16 @@ export type Database = {
           med_school: string | null
           onboarding_completed_at: string | null
           preferred_region: string | null
+          qi_experience: string | null
+          research_experience: string | null
           role: string | null
+          skills: string[] | null
           target_specialty: string | null
           updated_at: string
           year_of_study: string | null
         }
         Insert: {
+          availability_hours?: string | null
           avatar_url?: string | null
           bio?: string | null
           created_at?: string
@@ -235,12 +242,16 @@ export type Database = {
           med_school?: string | null
           onboarding_completed_at?: string | null
           preferred_region?: string | null
+          qi_experience?: string | null
+          research_experience?: string | null
           role?: string | null
+          skills?: string[] | null
           target_specialty?: string | null
           updated_at?: string
           year_of_study?: string | null
         }
         Update: {
+          availability_hours?: string | null
           avatar_url?: string | null
           bio?: string | null
           created_at?: string
@@ -258,7 +269,10 @@ export type Database = {
           med_school?: string | null
           onboarding_completed_at?: string | null
           preferred_region?: string | null
+          qi_experience?: string | null
+          research_experience?: string | null
           role?: string | null
+          skills?: string[] | null
           target_specialty?: string | null
           updated_at?: string
           year_of_study?: string | null
@@ -286,7 +300,7 @@ export type Database = {
 
 type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
 
-type DefaultSchema = DatabaseWithoutInternals["public"]
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
 
 export type Tables<
   DefaultSchemaTableNameOrOptions extends

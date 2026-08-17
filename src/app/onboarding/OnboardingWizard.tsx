@@ -22,11 +22,20 @@ import {
   DOCTOR_STAGES,
   SPECIALTY_TRAINING_YEARS,
   MED_SCHOOL_YEARS,
-  APPLICANT_INTENTS,
   type OnboardingRole,
 } from "@/lib/data/onboarding-options";
 import { UK_DEANERIES } from "@/lib/data/deaneries";
-import { PRIORITY_SPECIALTIES, SCORING_COVERAGE } from "@/lib/data/all-specialty-ratios";
+import { PRIORITY_SPECIALTIES } from "@/lib/data/all-specialty-ratios";
+import {
+  SKILL_OPTIONS,
+  QI_EXPERIENCE_OPTIONS,
+  RESEARCH_EXPERIENCE_OPTIONS,
+  AVAILABILITY_OPTIONS,
+  type Skill,
+  type QiExperience,
+  type ResearchExperience,
+  type AvailabilityHours,
+} from "@/lib/data/marketplace-options";
 
 const SPECIALTY_OPTIONS = [...PRIORITY_SPECIALTIES, "Other", "Not sure yet"];
 const CURRENT_SPECIALTY_OPTIONS = [...PRIORITY_SPECIALTIES, "Other"];
@@ -44,7 +53,10 @@ type FormState = {
   hospitalTrust: string;
   department: string;
   targetSpecialty: string;
-  intent: string;
+  qiExperience: QiExperience | "";
+  researchExperience: ResearchExperience | "";
+  skills: Skill[];
+  availabilityHours: AvailabilityHours | "";
 };
 
 const EMPTY_FORM: FormState = {
@@ -58,17 +70,25 @@ const EMPTY_FORM: FormState = {
   hospitalTrust: "",
   department: "",
   targetSpecialty: "",
-  intent: "",
+  qiExperience: "",
+  researchExperience: "",
+  skills: [],
+  availabilityHours: "",
 };
+
+// Both applicant roles (students and foundation doctors alike apply to QIP/audit/research
+// postings) get the same structured matching steps at the end, so posters can match against one
+// consistent vocabulary regardless of which role applied.
+const MATCHING_STEPS = ["qi_experience", "research_experience", "skills", "availability_hours"];
 
 function stepsForRole(role: Role | null, grade: string): string[] {
   if (role === "medical_student") {
-    return ["role", "med_school", "year_of_study", "target_specialty", "intent"];
+    return ["role", "med_school", "year_of_study", "target_specialty", ...MATCHING_STEPS];
   }
   if (role === "doctor_applicant") {
     const base = ["role", "preferred_region", "grade"];
     if (grade === "IN_SPECIALTY_TRAINING") base.push("current_specialty", "current_specialty_year");
-    return [...base, "hospital_trust", "target_specialty", "intent"];
+    return [...base, "hospital_trust", "target_specialty", ...MATCHING_STEPS];
   }
   if (role === "consultant_registrar") {
     return ["role", "preferred_region", "hospital_trust", "department"];
@@ -101,7 +121,6 @@ export default function OnboardingWizard() {
   const [stepIndex, setStepIndex] = useState(0);
   const [direction, setDirection] = useState(1);
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
-  const [email, setEmail] = useState<string | undefined>();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [done, setDone] = useState(false);
@@ -116,14 +135,12 @@ export default function OnboardingWizard() {
       if (!user) {
         if (isDemoMode()) {
           setDemo(true);
-          setEmail("demo@shortlisted.app");
           setLoading(false);
           return;
         }
         router.replace("/login");
         return;
       }
-      setEmail(user.email);
       setForm((prev) => ({ ...prev, role: prev.role ?? guessRoleFromEmail(user.email) }));
       setLoading(false);
     }
@@ -160,11 +177,24 @@ export default function OnboardingWizard() {
         return form.department.trim() !== "";
       case "target_specialty":
         return form.targetSpecialty !== "";
-      case "intent":
-        return form.intent !== "";
+      case "qi_experience":
+        return form.qiExperience !== "";
+      case "research_experience":
+        return form.researchExperience !== "";
+      case "skills":
+        return true; // optional / skippable
+      case "availability_hours":
+        return form.availabilityHours !== "";
       default:
         return false;
     }
+  }
+
+  function toggleSkill(skill: Skill) {
+    setForm((prev) => ({
+      ...prev,
+      skills: prev.skills.includes(skill) ? prev.skills.filter((s) => s !== skill) : [...prev.skills, skill],
+    }));
   }
 
   async function handleNext() {
@@ -208,7 +238,10 @@ export default function OnboardingWizard() {
         hospital_trust: form.role !== "medical_student" ? form.hospitalTrust || null : null,
         department: form.role === "consultant_registrar" ? form.department : null,
         target_specialty: form.role !== "consultant_registrar" ? form.targetSpecialty : null,
-        intent: form.role !== "consultant_registrar" ? form.intent : null,
+        qi_experience: form.role !== "consultant_registrar" ? form.qiExperience || null : null,
+        research_experience: form.role !== "consultant_registrar" ? form.researchExperience || null : null,
+        skills: form.role !== "consultant_registrar" ? form.skills : null,
+        availability_hours: form.role !== "consultant_registrar" ? form.availabilityHours || null : null,
         onboarding_completed_at: new Date().toISOString(),
       });
 
@@ -222,20 +255,10 @@ export default function OnboardingWizard() {
 
     toastQueue.add({
       title: "You're all set",
-      description: "Your profile is ready — let's get you started.",
+      description: "Your profile is ready — let's find you an opportunity.",
     });
 
-    // Only route into a specialty's own tool if one actually exists for it — otherwise fall
-    // back to the all-specialty ratios page instead of a mismatched or missing tool.
-    const coverage = form.targetSpecialty ? SCORING_COVERAGE[form.targetSpecialty] : undefined;
-
-    if (form.intent === "check_likelihood") {
-      router.push(coverage?.likelihoodHref ?? "/specialties");
-    } else if (form.intent === "score_portfolio") {
-      router.push(coverage?.portfolioHref ?? "/specialties");
-    } else {
-      router.push("/");
-    }
+    router.push("/marketplace");
   }
 
   if (loading) {
@@ -245,16 +268,16 @@ export default function OnboardingWizard() {
   if (done) {
     return (
       <div className={`${CARD} mt-8`}>
-        <h2 className="text-[17px] font-[510] text-paper">You&apos;re on the list</h2>
+        <h2 className="text-[17px] font-[510] text-paper">You&apos;re set up</h2>
         <p className="mt-2 text-body-sm text-fog">
-          The opportunity-posting marketplace isn&apos;t live yet — we&apos;ll email {email} the
-          moment it opens for {form.hospitalTrust || "your trust"}.
+          You can post a QIP, audit, or research opportunity now — students and foundation
+          doctors will see it and apply directly.
         </p>
         <button
-          onClick={() => router.push("/")}
+          onClick={() => router.push("/marketplace/post")}
           className="mt-6 rounded-buttons bg-acid-lime px-4 py-[10px] text-[14px] font-[510] tracking-[-0.011em] text-void transition-opacity hover:opacity-90"
         >
-          Go to Shortlisted →
+          Post an opportunity →
         </button>
       </div>
     );
@@ -434,17 +457,80 @@ export default function OnboardingWizard() {
               </StepShell>
             )}
 
-            {currentStep === "intent" && (
-              <StepShell question="What do you want to do first?">
+            {currentStep === "qi_experience" && (
+              <StepShell question="Have you been involved in a QI project before?">
                 <div className="space-y-2">
-                  {APPLICANT_INTENTS.map((i) => (
+                  {QI_EXPERIENCE_OPTIONS.map((o) => (
                     <OptionButton
-                      key={i.value}
-                      selected={form.intent === i.value}
-                      onClick={() => update("intent", i.value)}
-                      layoutId="intent-highlight"
+                      key={o.value}
+                      selected={form.qiExperience === o.value}
+                      onClick={() => update("qiExperience", o.value)}
+                      layoutId="qi-experience-highlight"
                     >
-                      <span className={form.intent === i.value ? "text-paper" : "text-mist"}>{i.label}</span>
+                      <span className={form.qiExperience === o.value ? "text-paper" : "text-mist"}>{o.label}</span>
+                    </OptionButton>
+                  ))}
+                </div>
+              </StepShell>
+            )}
+
+            {currentStep === "research_experience" && (
+              <StepShell question="Have you done research before?">
+                <div className="space-y-2">
+                  {RESEARCH_EXPERIENCE_OPTIONS.map((o) => (
+                    <OptionButton
+                      key={o.value}
+                      selected={form.researchExperience === o.value}
+                      onClick={() => update("researchExperience", o.value)}
+                      layoutId="research-experience-highlight"
+                    >
+                      <span className={form.researchExperience === o.value ? "text-paper" : "text-mist"}>
+                        {o.label}
+                      </span>
+                    </OptionButton>
+                  ))}
+                </div>
+              </StepShell>
+            )}
+
+            {currentStep === "skills" && (
+              <StepShell
+                question="Which of these can you already do?"
+                hint="Optional — helps you match with the right opportunities. Pick as many as apply."
+              >
+                <div className="flex flex-wrap gap-2">
+                  {SKILL_OPTIONS.map((o) => {
+                    const selected = form.skills.includes(o.value);
+                    return (
+                      <button
+                        key={o.value}
+                        type="button"
+                        onClick={() => toggleSkill(o.value)}
+                        className={`rounded-pills border px-4 py-2 text-body-sm transition-colors ${
+                          selected ? "border-acid-lime bg-acid-lime/10 text-paper" : "border-graphite text-mist hover:border-smoke"
+                        }`}
+                      >
+                        {o.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </StepShell>
+            )}
+
+            {currentStep === "availability_hours" && (
+              <StepShell question="How many hours a week could you commit?">
+                <div className="space-y-2">
+                  {AVAILABILITY_OPTIONS.map((o) => (
+                    <OptionButton
+                      key={o.value}
+                      selected={form.availabilityHours === o.value}
+                      onClick={() => update("availabilityHours", o.value)}
+                      layoutId="availability-highlight"
+                    >
+                      <span className={form.availabilityHours === o.value ? "text-paper" : "text-mist"}>
+                        {o.label}
+                      </span>
                     </OptionButton>
                   ))}
                 </div>

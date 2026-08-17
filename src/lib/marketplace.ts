@@ -1,4 +1,14 @@
 import { LONDON_MED_SCHOOL_HOSPITAL_PARTNERSHIPS } from "@/lib/data/medical-school-hospital-partnerships";
+import {
+  SKILL_OPTIONS,
+  QI_EXPERIENCE_RANK,
+  RESEARCH_EXPERIENCE_RANK,
+  AVAILABILITY_RANK,
+  type Skill,
+  type QiExperience,
+  type ResearchExperience,
+  type AvailabilityHours,
+} from "@/lib/data/marketplace-options";
 
 export function getPartneredHospitals(medSchool: string | null): string[] {
   if (!medSchool) return [];
@@ -13,6 +23,10 @@ export type MatchProfile = {
   preferredRegion: string | null;
   yearOfStudy: string | null;
   grade: string | null;
+  skills: Skill[] | null;
+  qiExperience: QiExperience | null;
+  researchExperience: ResearchExperience | null;
+  availabilityHours: AvailabilityHours | null;
 };
 
 export type OpportunityForMatch = {
@@ -20,45 +34,122 @@ export type OpportunityForMatch = {
   hospital_trust: string | null;
   deanery_region: string | null;
   min_year_of_study: string | null;
+  required_skills: string[] | null;
+  preferred_skills: string[] | null;
+  experience_level: string | null;
+  estimated_commitment: string | null;
 };
 
-export type MatchCheck = { label: string; matches: boolean };
+export type MatchCheck = { label: string; met: boolean; required: boolean };
 
-// Loose, best-effort matching against free-text fields — not a scoring system, just a quick
-// "does this line up with your profile" signal for the applicant, mirroring the Indeed
-// screenshot's alignment checkmarks.
-export function computeMatches(opportunity: OpportunityForMatch, profile: MatchProfile): MatchCheck[] {
+export type MatchResult = { percent: number; checks: MatchCheck[] };
+
+const EXPERIENCE_LEVEL_THRESHOLD: Record<string, number> = {
+  no_experience_needed: 0,
+  some_experience: 1,
+  experienced: 2,
+};
+
+function skillLabel(value: string): string {
+  return SKILL_OPTIONS.find((s) => s.value === value)?.label ?? value;
+}
+
+// Explainable, deterministic weighted score — no opaque ranking. Each criterion the opportunity
+// actually specifies contributes its listed weight; unspecified criteria are dropped and the
+// remaining weights renormalized to 100%, so a sparse posting isn't penalised for fields it
+// never asked about.
+export function computeMatch(opportunity: OpportunityForMatch, profile: MatchProfile): MatchResult {
   const checks: MatchCheck[] = [];
+  let earnedWeight = 0;
+  let totalWeight = 0;
 
+  // Specialty interest — 15%
   if (opportunity.specialty) {
     const studentSpecialty = profile.targetSpecialty ?? profile.currentSpecialty;
-    checks.push({
-      label: `Specialty: ${opportunity.specialty}`,
-      matches: !!studentSpecialty && studentSpecialty.toLowerCase() === opportunity.specialty.toLowerCase(),
-    });
+    const met = !!studentSpecialty && studentSpecialty.toLowerCase() === opportunity.specialty.toLowerCase();
+    checks.push({ label: `Interested in ${opportunity.specialty}`, met, required: false });
+    totalWeight += 15;
+    if (met) earnedWeight += 15;
   }
 
-  if (opportunity.hospital_trust) {
-    checks.push({
-      label: `Hospital: ${opportunity.hospital_trust}`,
-      matches: !!profile.hospitalTrust && profile.hospitalTrust.toLowerCase().includes(opportunity.hospital_trust.toLowerCase()),
-    });
+  // Relevant skills — 30%, required skills weighted 2x preferred within that budget
+  const required = opportunity.required_skills ?? [];
+  const preferred = opportunity.preferred_skills ?? [];
+  if (required.length || preferred.length) {
+    const studentSkills = new Set(profile.skills ?? []);
+    let skillWeight = 0;
+    let skillEarned = 0;
+    for (const s of required) {
+      const met = studentSkills.has(s as Skill);
+      checks.push({ label: skillLabel(s), met, required: true });
+      skillWeight += 2;
+      if (met) skillEarned += 2;
+    }
+    for (const s of preferred) {
+      const met = studentSkills.has(s as Skill);
+      checks.push({ label: skillLabel(s), met, required: false });
+      skillWeight += 1;
+      if (met) skillEarned += 1;
+    }
+    totalWeight += 30;
+    if (skillWeight > 0) earnedWeight += (skillEarned / skillWeight) * 30;
   }
 
-  if (opportunity.deanery_region) {
+  // Previous experience — 20%
+  if (opportunity.experience_level && opportunity.experience_level in EXPERIENCE_LEVEL_THRESHOLD) {
+    const threshold = EXPERIENCE_LEVEL_THRESHOLD[opportunity.experience_level];
+    const qiRank = profile.qiExperience ? QI_EXPERIENCE_RANK[profile.qiExperience] : 0;
+    const researchRank = profile.researchExperience
+      ? Math.min(2, RESEARCH_EXPERIENCE_RANK[profile.researchExperience])
+      : 0;
+    const met = Math.max(qiRank, researchRank) >= threshold;
     checks.push({
-      label: `Region: ${opportunity.deanery_region}`,
-      matches: profile.preferredRegion === opportunity.deanery_region,
+      label:
+        threshold === 0
+          ? "No experience needed"
+          : threshold === 1
+            ? "Some QI/research experience"
+            : "Experienced with QI/research",
+      met,
+      required: false,
     });
+    totalWeight += 20;
+    if (met) earnedWeight += 20;
+  }
+
+  // Availability — 20%
+  if (opportunity.estimated_commitment && opportunity.estimated_commitment in AVAILABILITY_RANK) {
+    const requiredRank = AVAILABILITY_RANK[opportunity.estimated_commitment as AvailabilityHours];
+    const studentRank = profile.availabilityHours ? AVAILABILITY_RANK[profile.availabilityHours] : -1;
+    const met = studentRank >= requiredRank;
+    checks.push({ label: `Available ${opportunity.estimated_commitment}/week`, met, required: false });
+    totalWeight += 20;
+    if (met) earnedWeight += 20;
+  }
+
+  // Location — 15%
+  if (opportunity.hospital_trust || opportunity.deanery_region) {
+    const hospitalMet =
+      !!opportunity.hospital_trust &&
+      !!profile.hospitalTrust &&
+      profile.hospitalTrust.toLowerCase().includes(opportunity.hospital_trust.toLowerCase());
+    const regionMet = !!opportunity.deanery_region && profile.preferredRegion === opportunity.deanery_region;
+    const met = hospitalMet || regionMet;
+    checks.push({
+      label: opportunity.hospital_trust ?? opportunity.deanery_region ?? "Location",
+      met,
+      required: false,
+    });
+    totalWeight += 15;
+    if (met) earnedWeight += 15;
   }
 
   if (opportunity.min_year_of_study) {
     const studentYear = profile.yearOfStudy ?? profile.grade;
-    checks.push({
-      label: `Stage: ${opportunity.min_year_of_study}`,
-      matches: !!studentYear && studentYear.toLowerCase().includes(opportunity.min_year_of_study.toLowerCase()),
-    });
+    const met = !!studentYear && studentYear.toLowerCase().includes(opportunity.min_year_of_study.toLowerCase());
+    checks.unshift({ label: opportunity.min_year_of_study, met, required: true });
   }
 
-  return checks;
+  const percent = totalWeight > 0 ? Math.round((earnedWeight / totalWeight) * 100) : 100;
+  return { percent, checks };
 }

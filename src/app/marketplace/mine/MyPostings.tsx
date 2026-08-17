@@ -4,21 +4,47 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { User } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/client";
-import { TASK_TYPE_OPTIONS } from "@/lib/data/marketplace-options";
+import { TASK_TYPE_OPTIONS, QI_EXPERIENCE_OPTIONS, type Skill } from "@/lib/data/marketplace-options";
+import { computeMatch, type MatchProfile } from "@/lib/marketplace";
 import type { Tables } from "@/lib/supabase/database.types";
 
 type Opportunity = Tables<"opportunities">;
-type Application = Tables<"opportunity_applications"> & {
-  applicantProfile?: {
-    full_name: string | null;
-    bio: string | null;
-    avatar_url: string | null;
-    cv_url: string | null;
-    cv_filename: string | null;
-    med_school: string | null;
-    target_specialty: string | null;
-  };
+type ApplicantProfile = {
+  full_name: string | null;
+  bio: string | null;
+  avatar_url: string | null;
+  cv_url: string | null;
+  cv_filename: string | null;
+  med_school: string | null;
+  target_specialty: string | null;
+  current_specialty: string | null;
+  hospital_trust: string | null;
+  preferred_region: string | null;
+  year_of_study: string | null;
+  grade: string | null;
+  skills: string[] | null;
+  qi_experience: string | null;
+  research_experience: string | null;
+  availability_hours: string | null;
 };
+type Application = Tables<"opportunity_applications"> & {
+  applicantProfile?: ApplicantProfile;
+};
+
+function toMatchProfile(p: ApplicantProfile | undefined): MatchProfile {
+  return {
+    targetSpecialty: p?.target_specialty ?? null,
+    currentSpecialty: p?.current_specialty ?? null,
+    hospitalTrust: p?.hospital_trust ?? null,
+    preferredRegion: p?.preferred_region ?? null,
+    yearOfStudy: p?.year_of_study ?? null,
+    grade: p?.grade ?? null,
+    skills: (p?.skills as Skill[] | null) ?? null,
+    qiExperience: p?.qi_experience as MatchProfile["qiExperience"],
+    researchExperience: p?.research_experience as MatchProfile["researchExperience"],
+    availabilityHours: p?.availability_hours as MatchProfile["availabilityHours"],
+  };
+}
 
 const STATUS_STYLES: Record<string, string> = {
   submitted: "bg-black/[0.045] text-fog",
@@ -87,7 +113,9 @@ export default function MyPostings() {
       const applicantIds = apps.map((a) => a.applicant_id);
       const { data: profiles } = await supabase
         .from("profiles")
-        .select("id, full_name, bio, avatar_url, cv_url, cv_filename, med_school, target_specialty")
+        .select(
+          "id, full_name, bio, avatar_url, cv_url, cv_filename, med_school, target_specialty, current_specialty, hospital_trust, preferred_region, year_of_study, grade, skills, qi_experience, research_experience, availability_hours"
+        )
         .in("id", applicantIds);
 
       const profileById = new Map((profiles ?? []).map((p) => [p.id, p]));
@@ -108,6 +136,15 @@ export default function MyPostings() {
   }
 
   const selected = postings.find((p) => p.id === selectedId) ?? null;
+
+  const rankedApplications = useMemo(() => {
+    if (!selected) return applications;
+    return [...applications].sort(
+      (a, b) =>
+        computeMatch(selected, toMatchProfile(b.applicantProfile)).percent -
+        computeMatch(selected, toMatchProfile(a.applicantProfile)).percent
+    );
+  }, [applications, selected]);
 
   if (loading) {
     return <div className="mt-8 rounded-cards bg-carbon p-6 shadow-subtle text-body-sm text-fog">Loading…</div>;
@@ -156,69 +193,87 @@ export default function MyPostings() {
           ) : applications.length === 0 ? (
             <div className="rounded-cards bg-carbon p-6 shadow-subtle text-body-sm text-fog">No applications yet.</div>
           ) : (
-            applications.map((a) => (
-              <div key={a.id} className="rounded-cards bg-carbon p-4 shadow-subtle">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex items-start gap-3">
-                    <div className="h-10 w-10 shrink-0 overflow-hidden rounded-pills bg-black/[0.045]">
-                      {a.applicantProfile?.avatar_url ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={a.applicantProfile.avatar_url} alt="" className="h-full w-full object-cover" />
-                      ) : null}
+            rankedApplications.map((a) => {
+              const match = selected ? computeMatch(selected, toMatchProfile(a.applicantProfile)) : null;
+              const qiLabel = QI_EXPERIENCE_OPTIONS.find((o) => o.value === a.applicantProfile?.qi_experience)?.label;
+              return (
+                <div key={a.id} className="rounded-cards bg-carbon p-4 shadow-subtle">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex items-start gap-3">
+                      <div className="h-10 w-10 shrink-0 overflow-hidden rounded-pills bg-black/[0.045]">
+                        {a.applicantProfile?.avatar_url ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={a.applicantProfile.avatar_url} alt="" className="h-full w-full object-cover" />
+                        ) : null}
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <p className="font-[510] text-paper">{a.applicantProfile?.full_name || "Unnamed applicant"}</p>
+                          {match && (
+                            <span className="rounded-badges bg-acid-lime/15 px-[6px] text-label font-[510] text-acid-lime">
+                              {match.percent}% match
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-caption text-fog">
+                          {[a.applicantProfile?.med_school, a.applicantProfile?.year_of_study && `Year ${a.applicantProfile.year_of_study}`, a.applicantProfile?.target_specialty]
+                            .filter(Boolean)
+                            .join(" · ")}
+                        </p>
+                        <p className="mt-0.5 text-caption text-fog">
+                          {[qiLabel, a.applicantProfile?.availability_hours && `${a.applicantProfile.availability_hours}/week`]
+                            .filter(Boolean)
+                            .join(" · ")}
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="font-[510] text-paper">{a.applicantProfile?.full_name || "Unnamed applicant"}</p>
-                      <p className="text-caption text-fog">
-                        {[a.applicantProfile?.med_school, a.applicantProfile?.target_specialty].filter(Boolean).join(" · ")}
-                      </p>
-                    </div>
+                    <span className={`rounded-badges px-[6px] text-label capitalize ${STATUS_STYLES[a.status] ?? ""}`}>
+                      {a.status}
+                    </span>
                   </div>
-                  <span className={`rounded-badges px-[6px] text-label capitalize ${STATUS_STYLES[a.status] ?? ""}`}>
-                    {a.status}
-                  </span>
-                </div>
 
-                {a.applicantProfile?.bio && <p className="mt-3 text-body-sm text-mist">{a.applicantProfile.bio}</p>}
-                {a.cover_note && (
-                  <p className="mt-2 rounded-inputs bg-black/[0.02] p-3 text-body-sm text-mist">{a.cover_note}</p>
-                )}
+                  {a.applicantProfile?.bio && <p className="mt-3 text-body-sm text-mist">{a.applicantProfile.bio}</p>}
+                  {a.cover_note && (
+                    <p className="mt-2 rounded-inputs bg-black/[0.02] p-3 text-body-sm text-mist">{a.cover_note}</p>
+                  )}
 
-                <div className="mt-3 flex flex-wrap items-center gap-2">
-                  {a.applicantProfile?.cv_url && (
-                    <button
-                      onClick={() => viewCv(a.applicantProfile!.cv_url!)}
-                      className="rounded-buttons border border-graphite px-3 py-1.5 text-[13px] text-mist hover:border-smoke"
-                    >
-                      View CV
-                    </button>
-                  )}
-                  {a.status !== "shortlisted" && a.status !== "accepted" && (
-                    <button
-                      onClick={() => updateStatus(a.id, "shortlisted")}
-                      className="rounded-buttons border border-graphite px-3 py-1.5 text-[13px] text-mist hover:border-smoke"
-                    >
-                      Shortlist
-                    </button>
-                  )}
-                  {a.status !== "accepted" && (
-                    <button
-                      onClick={() => updateStatus(a.id, "accepted")}
-                      className="rounded-buttons bg-acid-lime px-3 py-1.5 text-[13px] font-[510] text-void hover:opacity-90"
-                    >
-                      Accept
-                    </button>
-                  )}
-                  {a.status !== "rejected" && (
-                    <button
-                      onClick={() => updateStatus(a.id, "rejected")}
-                      className="rounded-buttons border border-coral-red/30 px-3 py-1.5 text-[13px] text-coral-red hover:border-coral-red/60"
-                    >
-                      Reject
-                    </button>
-                  )}
+                  <div className="mt-3 flex flex-wrap items-center gap-2">
+                    {a.applicantProfile?.cv_url && (
+                      <button
+                        onClick={() => viewCv(a.applicantProfile!.cv_url!)}
+                        className="rounded-buttons border border-graphite px-3 py-1.5 text-[13px] text-mist hover:border-smoke"
+                      >
+                        View CV
+                      </button>
+                    )}
+                    {a.status !== "shortlisted" && a.status !== "accepted" && (
+                      <button
+                        onClick={() => updateStatus(a.id, "shortlisted")}
+                        className="rounded-buttons border border-graphite px-3 py-1.5 text-[13px] text-mist hover:border-smoke"
+                      >
+                        Shortlist
+                      </button>
+                    )}
+                    {a.status !== "accepted" && (
+                      <button
+                        onClick={() => updateStatus(a.id, "accepted")}
+                        className="rounded-buttons bg-acid-lime px-3 py-1.5 text-[13px] font-[510] text-void hover:opacity-90"
+                      >
+                        Accept
+                      </button>
+                    )}
+                    {a.status !== "rejected" && (
+                      <button
+                        onClick={() => updateStatus(a.id, "rejected")}
+                        className="rounded-buttons border border-coral-red/30 px-3 py-1.5 text-[13px] text-coral-red hover:border-coral-red/60"
+                      >
+                        Reject
+                      </button>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))
+              );
+            })
           )}
         </div>
       </div>

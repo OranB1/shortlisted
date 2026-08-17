@@ -22,12 +22,12 @@ const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
 });
 
-const TITLE = "Shortlisted — Know where you stand.";
+const TITLE = "Hitch — Know where you stand.";
 const DESCRIPTION =
   "Portfolio scoring and offer-likelihood estimates for UK specialty training applicants.";
 
 export const metadata: Metadata = {
-  // TODO: set metadataBase once the production domain is finalized (e.g. new URL("https://shortlisted.app"))
+  // TODO: set metadataBase once the production domain is finalized (e.g. new URL("https://hitch.app"))
   // — without it, Next.js falls back to resolving openGraph/twitter image URLs against localhost in dev,
   // and social scrapers hitting the deployed site need an absolute URL to fetch the image correctly.
   title: TITLE,

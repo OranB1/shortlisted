@@ -5,8 +5,8 @@ import Link from "next/link";
 import type { User } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/client";
 import { toastQueue } from "@/components/Toast";
-import { TASK_TYPE_OPTIONS, type TaskType } from "@/lib/data/marketplace-options";
-import { getPartneredHospitals, computeMatches, type MatchProfile } from "@/lib/marketplace";
+import { TASK_TYPE_OPTIONS, SKILL_OPTIONS, type TaskType, type Skill } from "@/lib/data/marketplace-options";
+import { getPartneredHospitals, computeMatch, type MatchProfile } from "@/lib/marketplace";
 import type { Tables } from "@/lib/supabase/database.types";
 
 type Opportunity = Tables<"opportunities">;
@@ -24,6 +24,10 @@ export default function MarketplaceBrowser() {
     preferredRegion: null,
     yearOfStudy: null,
     grade: null,
+    skills: null,
+    qiExperience: null,
+    researchExperience: null,
+    availabilityHours: null,
     medSchool: null,
     cvUrl: null,
     role: null,
@@ -35,6 +39,7 @@ export default function MarketplaceBrowser() {
 
   const [taskTypeFilter, setTaskTypeFilter] = useState<TaskType | "">("");
   const [restrictToPartners, setRestrictToPartners] = useState(true);
+  const [beginnerFriendlyOnly, setBeginnerFriendlyOnly] = useState(false);
 
   const [coverNote, setCoverNote] = useState("");
   const [applying, setApplying] = useState(false);
@@ -50,7 +55,9 @@ export default function MarketplaceBrowser() {
       if (currentUser) {
         const { data: p } = await supabase
           .from("profiles")
-          .select("target_specialty, current_specialty, hospital_trust, preferred_region, year_of_study, grade, med_school, cv_url, role")
+          .select(
+            "target_specialty, current_specialty, hospital_trust, preferred_region, year_of_study, grade, skills, qi_experience, research_experience, availability_hours, med_school, cv_url, role"
+          )
           .eq("id", currentUser.id)
           .maybeSingle();
 
@@ -62,6 +69,10 @@ export default function MarketplaceBrowser() {
             preferredRegion: p.preferred_region,
             yearOfStudy: p.year_of_study,
             grade: p.grade,
+            skills: p.skills as Skill[] | null,
+            qiExperience: p.qi_experience as MatchProfile["qiExperience"],
+            researchExperience: p.research_experience as MatchProfile["researchExperience"],
+            availabilityHours: p.availability_hours as MatchProfile["availabilityHours"],
             medSchool: p.med_school,
             cvUrl: p.cv_url,
             role: p.role,
@@ -99,12 +110,18 @@ export default function MarketplaceBrowser() {
         const onList = partneredHospitals.some((h) => o.hospital_trust!.toLowerCase().includes(h.toLowerCase()));
         if (!onList) return false;
       }
+      if (beginnerFriendlyOnly && o.experience_level !== "no_experience_needed") return false;
       return true;
     });
-  }, [opportunities, taskTypeFilter, restrictToPartners, hasPartnershipData, partneredHospitals]);
+  }, [opportunities, taskTypeFilter, restrictToPartners, hasPartnershipData, partneredHospitals, beginnerFriendlyOnly]);
 
   const selected = filtered.find((o) => o.id === selectedId) ?? filtered[0] ?? null;
-  const matches = selected ? computeMatches(selected, profile) : [];
+  const matchByOpportunity = useMemo(() => {
+    const map = new Map<string, ReturnType<typeof computeMatch>>();
+    for (const o of filtered) map.set(o.id, computeMatch(o, profile));
+    return map;
+  }, [filtered, profile]);
+  const selectedMatch = selected ? (matchByOpportunity.get(selected.id) ?? computeMatch(selected, profile)) : null;
 
   async function handleApply() {
     if (!user || !selected) return;
@@ -159,6 +176,16 @@ export default function MarketplaceBrowser() {
             Only {profile.medSchool}&apos;s partner hospitals
           </label>
         )}
+
+        <label className="flex cursor-pointer items-center gap-2 text-[13px] text-mist">
+          <input
+            type="checkbox"
+            checked={beginnerFriendlyOnly}
+            onChange={(e) => setBeginnerFriendlyOnly(e.target.checked)}
+            className="accent-acid-lime"
+          />
+          Beginner friendly only
+        </label>
       </div>
 
       {filtered.length === 0 ? (
@@ -177,7 +204,14 @@ export default function MarketplaceBrowser() {
                   selected?.id === o.id ? "border-acid-lime bg-acid-lime/5" : "border-graphite bg-carbon hover:border-smoke"
                 }`}
               >
-                <p className="font-[510] text-paper">{o.title}</p>
+                <div className="flex items-start justify-between gap-2">
+                  <p className="font-[510] text-paper">{o.title}</p>
+                  {user && (
+                    <span className="shrink-0 rounded-badges bg-acid-lime/15 px-[6px] text-label font-[510] text-acid-lime">
+                      {matchByOpportunity.get(o.id)?.percent ?? 0}% match
+                    </span>
+                  )}
+                </div>
                 <p className="mt-1 text-caption text-fog">{o.hospital_trust ?? "Location not specified"}</p>
                 <div className="mt-2 flex flex-wrap gap-1">
                   <span className="rounded-badges bg-black/[0.045] px-[6px] text-label text-fog">
@@ -198,14 +232,22 @@ export default function MarketplaceBrowser() {
 
               <p className="mt-4 whitespace-pre-wrap text-body-sm text-mist">{selected.description}</p>
 
-              {matches.length > 0 && (
+              {selectedMatch && selectedMatch.checks.length > 0 && (
                 <div className="mt-6 border-t-[0.5px] border-graphite pt-4">
-                  <p className="text-caption font-[510] text-fog">How this lines up with your profile</p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-caption font-[510] text-fog">How this lines up with your profile</p>
+                    <span className="rounded-badges bg-acid-lime/15 px-[6px] text-label font-[510] text-acid-lime">
+                      {selectedMatch.percent}% match
+                    </span>
+                  </div>
                   <ul className="mt-2 space-y-1">
-                    {matches.map((m) => (
-                      <li key={m.label} className="flex items-center gap-2 text-body-sm">
-                        <span className={m.matches ? "text-pulse-green" : "text-ash"}>{m.matches ? "✓" : "–"}</span>
-                        <span className={m.matches ? "text-mist" : "text-ash"}>{m.label}</span>
+                    {selectedMatch.checks.map((c) => (
+                      <li key={c.label} className="flex items-center gap-2 text-body-sm">
+                        <span className={c.met ? "text-pulse-green" : "text-ash"}>{c.met ? "✓" : "○"}</span>
+                        <span className={c.met ? "text-mist" : "text-ash"}>
+                          {c.label}
+                          {c.required && <span className="ml-1 text-label text-ash">(required)</span>}
+                        </span>
                       </li>
                     ))}
                   </ul>
@@ -227,10 +269,18 @@ export default function MarketplaceBrowser() {
                 )}
               </div>
 
-              {selected.required_skills && selected.required_skills.length > 0 && (
+              {((selected.required_skills && selected.required_skills.length > 0) ||
+                (selected.preferred_skills && selected.preferred_skills.length > 0)) && (
                 <div className="mt-4 flex flex-wrap gap-1">
-                  {selected.required_skills.map((s) => (
-                    <span key={s} className="rounded-badges bg-iris-violet/15 px-[6px] text-label text-iris-violet">{s}</span>
+                  {selected.required_skills?.map((s) => (
+                    <span key={s} className="rounded-badges bg-iris-violet/15 px-[6px] text-label text-iris-violet">
+                      {SKILL_OPTIONS.find((o) => o.value === s)?.label ?? s}
+                    </span>
+                  ))}
+                  {selected.preferred_skills?.map((s) => (
+                    <span key={s} className="rounded-badges bg-black/[0.045] px-[6px] text-label text-fog">
+                      {SKILL_OPTIONS.find((o) => o.value === s)?.label ?? s} (preferred)
+                    </span>
                   ))}
                 </div>
               )}

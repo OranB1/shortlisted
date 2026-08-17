@@ -2,12 +2,12 @@ const FOUNDERS = [
   {
     name: "[Founder name]",
     role: "[Role — e.g. Co-founder]",
-    bio: "[A couple of sentences about background and why they're building Shortlisted.]",
+    bio: "[A couple of sentences about background and why they're building Hitch.]",
   },
   {
     name: "[Co-founder name]",
     role: "[Role — e.g. Co-founder]",
-    bio: "[A couple of sentences about background and why they're building Shortlisted.]",
+    bio: "[A couple of sentences about background and why they're building Hitch.]",
   },
 ];
 
@@ -15,16 +15,16 @@ export default function AboutPage() {
   return (
     <main className="mx-auto w-full max-w-[1200px] flex-1 px-6 py-16">
       <section className="max-w-2xl">
-        <h1 className="text-heading-sm font-serif font-normal text-paper">About Shortlisted</h1>
+        <h1 className="text-heading-sm font-serif font-normal text-paper">About Hitch</h1>
         <p className="mt-6 text-body text-fog">
           UK specialty training is more competitive than ever, and applicants are starting
           portfolio-building earlier every year — against self-assessment matrices that differ by
-          specialty and change annually. We built Shortlisted because that confusion shouldn&apos;t
+          specialty and change annually. We built Hitch because that confusion shouldn&apos;t
           be the hard part. It should be easy to know exactly where your portfolio stands, what
           it&apos;s worth, and what to do next.
         </p>
         <p className="mt-4 text-body text-fog">
-          Shortlisted is built by junior doctors and medical students, for junior doctors and
+          Hitch is built by junior doctors and medical students, for junior doctors and
           medical students — starting with verified scoring for the specialties that cover the
           majority of UK applicants, with more on the way.
         </p>

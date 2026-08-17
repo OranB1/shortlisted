@@ -5,11 +5,7 @@ import { signOut } from "@/app/auth/actions";
 import { Button } from "@/components/Button";
 
 const LINKS = [
-  { href: "/specialties", label: "All Specialties" },
-  { href: "/imt-likelihood", label: "Likelihood" },
-  { href: "/portfolio/imt", label: "Portfolio" },
-  { href: "/plan", label: "My Plan" },
-  { href: "/marketplace", label: "Marketplace" },
+  { href: "/marketplace", label: "Opportunities" },
   { href: "/about", label: "About" },
   { href: "/contact", label: "Contact" },
 ];
@@ -32,7 +28,7 @@ export default async function NavBar() {
             className="shrink-0"
             priority
           />
-          Shortlisted
+          Hitch
         </Link>
         <div className="flex flex-1 gap-2">
           {LINKS.map((l) => (
@@ -45,6 +41,13 @@ export default async function NavBar() {
             </Link>
           ))}
         </div>
+        <Link
+          href="/marketplace/post"
+          className="hidden rounded-buttons border border-graphite px-3 py-[7px] text-[13px] font-[510] text-mist transition-colors hover:border-smoke sm:block"
+        >
+          Post an opportunity
+        </Link>
+
         {user ? (
           <div className="flex items-center gap-4 text-[14px]">
             <Link href="/profile" className="text-mist transition-colors hover:text-paper">

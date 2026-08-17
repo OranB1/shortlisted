@@ -1,56 +1,65 @@
 import Link from "next/link";
-import { Check, Circle, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/Button";
-import { ScoreRing } from "@/components/ScoreRing";
-import {
-  PRIORITY_SPECIALTIES,
-  SCORING_COVERAGE,
-  SECONDARY_SPECIALTIES,
-  type CoverageTier,
-} from "@/lib/data/all-specialty-ratios";
 
-const TIER_LABEL: Record<CoverageTier, string> = {
-  verified_scoring_and_likelihood: "verified — scoring + likelihood",
-  verified_scoring: "verified — scoring",
-  confirmed_no_portfolio: "confirmed — no portfolio",
-  indicative: "AI-indicative",
-};
-
-const TIER_STYLE: Record<CoverageTier, string> = {
-  verified_scoring_and_likelihood: "bg-pulse-green/15 text-pulse-green",
-  verified_scoring: "bg-iris-violet/15 text-iris-violet",
-  confirmed_no_portfolio: "bg-signal-teal/15 text-signal-teal",
-  indicative: "bg-black/[0.045] text-fog",
-};
-
-const CHECKLIST_PREVIEW = [
-  { label: "Quality improvement project", done: true, points: 4 },
-  { label: "Presentations & posters", done: true, points: 5 },
-  { label: "Published research", done: true, points: 6 },
-  { label: "Teaching experience", done: false, points: 0 },
-  { label: "Training in teaching", done: false, points: 0 },
+const MOCK_MATCH_CHECKS = [
+  { label: "Year 3+", met: true, required: true },
+  { label: "Interested in Endocrinology", met: true, required: false },
+  { label: "Excel / data management", met: true, required: false },
+  { label: "Available 3–5h/week", met: true, required: false },
+  { label: "Previous QI experience", met: false, required: false },
 ];
-const CHECKLIST_TOTAL = CHECKLIST_PREVIEW.reduce((sum, i) => sum + i.points, 0);
-const CHECKLIST_MAX = 30;
+
+const STATS = [
+  {
+    value: "57.9%",
+    label: "of F1s who start an audit never complete it",
+    source: "UK junior doctors' experience of clinical audit, Foundation Programme",
+  },
+  {
+    value: "68%",
+    label: "of medical students say not knowing what's out there is their single biggest barrier",
+    source: "SMART survey, 1,774 medical students across 40 UK medical schools",
+  },
+  {
+    value: "50%",
+    label: "of medical student-led QI projects achieve a significant improvement — and every one of those held at follow-up",
+    source: "Scoping review of medical student QI projects",
+  },
+];
+
+const HOW_IT_WORKS = [
+  {
+    step: "1",
+    title: "Post",
+    body: "A consultant, registrar, or QI team lists a QIP, audit, research task, or presentation opportunity — required vs. preferred criteria, estimated commitment, and deadline.",
+  },
+  {
+    step: "2",
+    title: "Match",
+    body: "Students and foundation doctors see an explainable match score against their own structured profile — no CV trawling, no relying on who they happen to know.",
+  },
+  {
+    step: "3",
+    title: "Deliver",
+    body: "The poster reviews a ranked shortlist, picks who to work with, and can verify what the student actually contributed once the project's done.",
+  },
+];
 
 const EXPLORE_CARDS = [
   {
-    href: "/specialties",
-    title: "All-Specialty Competition Ratios",
-    body: "2024 vs 2025 competition ratios and selection mechanisms across every CT1/ST1 route, official NHS England data.",
-    cta: "Browse table",
+    href: "/marketplace",
+    audience: "Students & foundation doctors",
+    title: "Find an opportunity",
+    body: "Browse open QIPs, audits, research tasks, and presentations near you, ranked by how well they match your profile.",
+    cta: "Browse opportunities",
   },
   {
-    href: "/portfolio/imt",
-    title: "Portfolio Scoring",
-    body: "Score your portfolio against the official self-assessment matrix, domain by domain. IMT, CST, Paediatrics, Clinical Radiology, Ophthalmology, Cardiothoracic Surgery, and Histopathology are live now — more specialties are on the way.",
-    cta: "Score now",
-  },
-  {
-    href: "/plan",
-    title: "Deadline Planner",
-    body: "Pick every specialty you're applying to and see one combined, countdown-sorted timeline of every application, MSRA, portfolio, and interview deadline.",
-    cta: "Build my plan",
+    href: "/marketplace/post",
+    audience: "Consultants, registrars & QI teams",
+    title: "Post an opportunity",
+    body: "Get help with the project that's been sitting on your list — data collection, literature review, patient recruitment, or a QI cycle you don't have time to run alone.",
+    cta: "Post an opportunity",
   },
 ];
 
@@ -61,43 +70,81 @@ export default function Home() {
         <div className="max-w-2xl lg:flex-1">
           <span className="inline-flex items-center gap-2 rounded-pills bg-black/[0.045] px-3 py-[6px] text-label text-fog">
             <span className="h-1.5 w-1.5 rounded-full bg-pulse-green" />
-            Live: verified scoring for 7 specialties
+            Live: QIP, audit & research matching
           </span>
 
-          <h1 className="mt-4 text-heading-lg font-serif font-normal text-paper">Know where you stand.</h1>
+          <h1 className="mt-4 text-heading-lg font-serif font-normal text-paper">
+            Get your QIP, audit, or research project actually done.
+          </h1>
           <p className="mt-6 max-w-lg text-body text-fog">
-            Portfolio scoring, offer-likelihood estimates, and opportunity matching for foundation
-            doctors and medical students building toward UK specialty training applications.
+            A structured way for hospitals and consultants to find willing, matched student and
+            trainee help — and for students and foundation doctors to find real opportunities,
+            not just whoever they happen to know.
           </p>
-          <Button href="/onboarding" size="lg" className="mt-8" iconTrailing={<ArrowRight size={16} />}>
-            Get started
-          </Button>
+          <div className="mt-8 flex flex-wrap items-center gap-3">
+            <Button href="/marketplace" size="lg" iconTrailing={<ArrowRight size={16} />}>
+              Browse opportunities
+            </Button>
+            <Link
+              href="/marketplace/post"
+              className="rounded-buttons border border-graphite px-5 py-[13px] text-[14px] font-[510] text-mist transition-colors hover:border-smoke hover:text-paper"
+            >
+              Post an opportunity
+            </Link>
+          </div>
         </div>
 
         <div className="mt-16 lg:mt-0 lg:w-[380px] lg:shrink-0">
           <div className="rounded-cards bg-carbon p-6 shadow-subtle">
-            <p className="text-caption text-ash">Your portfolio, scored</p>
-            <ul className="mt-4 space-y-3">
-              {CHECKLIST_PREVIEW.map((item) => (
-                <li key={item.label} className="flex items-center gap-3 text-body-sm">
-                  {item.done ? (
-                    <Check size={16} className="shrink-0 text-acid-lime" />
-                  ) : (
-                    <Circle size={16} className="shrink-0 text-ash" />
-                  )}
-                  <span className={item.done ? "text-mist" : "text-ash"}>{item.label}</span>
+            <div className="flex items-start justify-between gap-2">
+              <div>
+                <p className="font-[510] text-paper">Improving inpatient insulin prescribing</p>
+                <p className="mt-1 text-caption text-fog">Endocrinology · QIP · 3 months · Hybrid</p>
+              </div>
+              <span className="shrink-0 rounded-badges bg-acid-lime/15 px-[6px] text-label font-[510] text-acid-lime">
+                92% match
+              </span>
+            </div>
+            <ul className="mt-4 space-y-2 border-t border-graphite pt-4">
+              {MOCK_MATCH_CHECKS.map((c) => (
+                <li key={c.label} className="flex items-center gap-2 text-body-sm">
+                  <span className={c.met ? "text-pulse-green" : "text-ash"}>{c.met ? "✓" : "○"}</span>
+                  <span className={c.met ? "text-mist" : "text-ash"}>
+                    {c.label}
+                    {c.required && <span className="ml-1 text-label text-ash">(required)</span>}
+                  </span>
                 </li>
               ))}
             </ul>
-            <div className="mt-6 flex items-center gap-4 border-t border-graphite pt-6">
-              <ScoreRing value={CHECKLIST_TOTAL} max={CHECKLIST_MAX} size={64} strokeWidth={6} />
-              <p className="text-caption text-ash">
-                Illustrative example — plug in your own portfolio to see your real score.
-              </p>
-            </div>
+            <p className="mt-4 text-caption text-ash">
+              Illustrative example — real postings show your own match score.
+            </p>
           </div>
         </div>
       </section>
+
+      <div className="mt-24 grid gap-6 sm:grid-cols-3">
+        {STATS.map((s) => (
+          <div key={s.label} className="rounded-cards bg-carbon p-6 shadow-subtle">
+            <p className="text-heading-sm font-serif font-normal text-paper">{s.value}</p>
+            <p className="mt-2 text-body-sm text-mist">{s.label}</p>
+            <p className="mt-3 text-caption text-ash">{s.source}</p>
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-24">
+        <h2 className="text-subheading font-serif font-normal text-paper">How it works</h2>
+        <div className="mt-6 grid gap-6 sm:grid-cols-3">
+          {HOW_IT_WORKS.map((s) => (
+            <div key={s.step}>
+              <span className="text-caption font-[510] text-acid-lime">Step {s.step}</span>
+              <h3 className="mt-1 text-[17px] font-[510] text-paper">{s.title}</h3>
+              <p className="mt-2 text-body-sm text-fog">{s.body}</p>
+            </div>
+          ))}
+        </div>
+      </div>
 
       <div className="mt-24 grid gap-6 sm:grid-cols-2">
         {EXPLORE_CARDS.map((card) => (
@@ -106,74 +153,14 @@ export default function Home() {
             href={card.href}
             className="rounded-cards bg-carbon p-6 shadow-subtle transition-colors hover:shadow-[0_0_0_1px_var(--color-smoke)_inset]"
           >
-            <h2 className="text-[17px] font-[510] text-paper">{card.title}</h2>
+            <p className="text-caption text-ash">{card.audience}</p>
+            <h2 className="mt-1 text-[17px] font-[510] text-paper">{card.title}</h2>
             <p className="mt-2 text-body-sm text-fog">{card.body}</p>
             <span className="mt-4 inline-flex items-center gap-1 text-[13px] font-[510] text-mist">
               {card.cta} <ArrowRight size={14} />
             </span>
           </Link>
         ))}
-
-        <div className="rounded-cards bg-carbon p-6 shadow-subtle sm:col-span-2">
-          <h2 className="text-[17px] font-[510] text-paper">Priority specialty coverage</h2>
-          <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {PRIORITY_SPECIALTIES.map((s) => {
-              const coverage = SCORING_COVERAGE[s] ?? { tier: "indicative" as const };
-              const href = coverage.portfolioHref ?? coverage.likelihoodHref;
-              const rowClass =
-                "flex items-center justify-between gap-2 rounded-inputs border border-graphite p-3 text-body-sm text-mist transition-colors hover:border-smoke hover:text-paper";
-              const content = (
-                <>
-                  <span>{s}</span>
-                  <span className={`shrink-0 rounded-badges px-[6px] text-label ${TIER_STYLE[coverage.tier]}`}>
-                    {TIER_LABEL[coverage.tier]}
-                  </span>
-                </>
-              );
-              return href ? (
-                <Link key={s} href={href} className={rowClass}>
-                  {content}
-                </Link>
-              ) : (
-                <div key={s} className={rowClass}>
-                  {content}
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        <div className="rounded-cards bg-carbon p-6 shadow-subtle sm:col-span-2">
-          <h2 className="text-[17px] font-[510] text-paper">Also covered</h2>
-          <p className="mt-1 text-caption text-ash">
-            Smaller applicant pools than the 10 priority specialties above, but scored or
-            researched anyway.
-          </p>
-          <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {SECONDARY_SPECIALTIES.map(({ name, coverage }) => {
-              const href = coverage.portfolioHref ?? coverage.likelihoodHref;
-              const rowClass =
-                "flex items-center justify-between gap-2 rounded-inputs border border-graphite p-3 text-body-sm text-mist transition-colors hover:border-smoke hover:text-paper";
-              const content = (
-                <>
-                  <span>{name}</span>
-                  <span className={`shrink-0 rounded-badges px-[6px] text-label ${TIER_STYLE[coverage.tier]}`}>
-                    {TIER_LABEL[coverage.tier]}
-                  </span>
-                </>
-              );
-              return href ? (
-                <Link key={name} href={href} className={rowClass}>
-                  {content}
-                </Link>
-              ) : (
-                <div key={name} className={rowClass}>
-                  {content}
-                </div>
-              );
-            })}
-          </div>
-        </div>
       </div>
     </main>
   );
