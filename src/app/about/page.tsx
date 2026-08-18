@@ -17,16 +17,20 @@ export default function AboutPage() {
       <section className="max-w-2xl">
         <h1 className="text-heading-sm font-serif font-normal text-paper">About Hitch</h1>
         <p className="mt-6 text-body text-fog">
-          UK specialty training is more competitive than ever, and applicants are starting
-          portfolio-building earlier every year — against self-assessment matrices that differ by
-          specialty and change annually. We built Hitch because that confusion shouldn&apos;t
-          be the hard part. It should be easy to know exactly where your portfolio stands, what
-          it&apos;s worth, and what to do next.
+          Most QIPs and audits don&apos;t fail from a lack of ideas or appetite — they stall
+          because the consultant with a backlog and the student who wants hands-on experience
+          never find each other. Opportunities move through word of mouth, so who you happen to
+          know ends up mattering more than how keen you are. We built Hitch to fix that: a
+          structured place for hospitals and consultants to post real QIP, audit, research, and
+          teaching opportunities, and for students and foundation doctors to find and apply to
+          them directly.
         </p>
         <p className="mt-4 text-body text-fog">
           Hitch is built by junior doctors and medical students, for junior doctors and
-          medical students — starting with verified scoring for the specialties that cover the
-          majority of UK applicants, with more on the way.
+          medical students — starting with structured matching on skills, experience, and
+          availability, so posters see a ranked, explainable shortlist instead of a pile of
+          unstructured emails, and applicants get matched on merit rather than proximity to a
+          consultant.
         </p>
       </section>
 
