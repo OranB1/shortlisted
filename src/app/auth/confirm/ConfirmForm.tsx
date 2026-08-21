@@ -39,6 +39,7 @@ export default function ConfirmForm() {
       .maybeSingle();
 
     router.push(profile?.onboarding_completed_at ? "/" : "/onboarding");
+    router.refresh();
   }
 
   if (!tokenHash) {
