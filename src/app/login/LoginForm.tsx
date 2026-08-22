@@ -12,6 +12,7 @@ export default function LoginForm() {
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");
   const [cooldown, setCooldown] = useState(0);
+  const [resending, setResending] = useState(false);
 
   useEffect(() => {
     if (cooldown <= 0) return;
@@ -45,8 +46,11 @@ export default function LoginForm() {
   }
 
   async function handleResend() {
+    if (resending || cooldown > 0) return;
+    setResending(true);
     setErrorMessage("");
     await sendLink();
+    setResending(false);
   }
 
   if (status === "sent") {
@@ -63,10 +67,14 @@ export default function LoginForm() {
           {errorMessage && <p className="mt-2 text-body-sm text-coral-red">{errorMessage}</p>}
           <button
             onClick={handleResend}
-            disabled={cooldown > 0}
+            disabled={resending || cooldown > 0}
             className="mt-3 rounded-buttons border border-graphite px-4 py-[10px] text-[14px] font-[510] tracking-[-0.011em] text-mist transition-colors hover:border-smoke hover:text-paper disabled:opacity-50"
           >
-            {cooldown > 0 ? `Didn't get it? Resend in ${cooldown}s` : "Didn't get it? Resend link"}
+            {resending
+              ? "Sending…"
+              : cooldown > 0
+                ? `Didn't get it? Resend in ${cooldown}s`
+                : "Didn't get it? Resend link"}
           </button>
         </div>
       </div>
