@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
-import DemoWalkthrough from "./DemoWalkthrough";
+import DemoRoot from "./DemoRoot";
 
 export const metadata: Metadata = {
-  title: "Hitch demo — Post an opportunity as a doctor",
+  title: "Hitch demo — see how the marketplace works",
   description:
-    "See exactly what it looks like for a consultant or QI lead to post a QIP, audit, or research opportunity on Hitch — no account needed.",
+    "See exactly what it looks like to post an opportunity as a doctor, or find and apply to one as a student — no account needed.",
 };
 
 export default function DemoPage() {
-  return <DemoWalkthrough />;
+  return <DemoRoot />;
 }
