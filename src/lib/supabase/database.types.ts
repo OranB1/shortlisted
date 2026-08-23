@@ -50,6 +50,7 @@ export type Database = {
           experience_level: string | null
           hospital_trust: string | null
           id: string
+          is_remote: boolean
           min_year_of_study: string | null
           poster_id: string
           preferred_skills: string[] | null
@@ -69,6 +70,7 @@ export type Database = {
           experience_level?: string | null
           hospital_trust?: string | null
           id?: string
+          is_remote?: boolean
           min_year_of_study?: string | null
           poster_id: string
           preferred_skills?: string[] | null
@@ -88,6 +90,7 @@ export type Database = {
           experience_level?: string | null
           hospital_trust?: string | null
           id?: string
+          is_remote?: boolean
           min_year_of_study?: string | null
           poster_id?: string
           preferred_skills?: string[] | null
@@ -197,6 +200,9 @@ export type Database = {
       }
       profiles: {
         Row: {
+          about_experience: string | null
+          about_goals: string | null
+          about_motivation: string | null
           availability_hours: string | null
           avatar_url: string | null
           bio: string | null
@@ -224,6 +230,9 @@ export type Database = {
           year_of_study: string | null
         }
         Insert: {
+          about_experience?: string | null
+          about_goals?: string | null
+          about_motivation?: string | null
           availability_hours?: string | null
           avatar_url?: string | null
           bio?: string | null
@@ -251,6 +260,9 @@ export type Database = {
           year_of_study?: string | null
         }
         Update: {
+          about_experience?: string | null
+          about_goals?: string | null
+          about_motivation?: string | null
           availability_hours?: string | null
           avatar_url?: string | null
           bio?: string | null

@@ -29,12 +29,12 @@ export default function PostForm() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [showMoreDetail, setShowMoreDetail] = useState(false);
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [taskType, setTaskType] = useState<TaskType>("qip");
 
+  const [isRemote, setIsRemote] = useState(false);
   const [specialty, setSpecialty] = useState("");
   const [hospitalTrust, setHospitalTrust] = useState("");
   const [deaneryRegion, setDeaneryRegion] = useState("");
@@ -76,6 +76,16 @@ export default function PostForm() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!user) return;
+
+    if (!isRemote && !hospitalTrust) {
+      setError("Add a hospital / trust, or mark this as remote / virtual.");
+      return;
+    }
+    if (requiredSkills.length === 0) {
+      setError("Pick at least one required skill — this is what students are matched against.");
+      return;
+    }
+
     setSaving(true);
     setError(null);
 
@@ -86,14 +96,15 @@ export default function PostForm() {
         title,
         description,
         task_type: taskType,
+        is_remote: isRemote,
         specialty: specialty || null,
         hospital_trust: hospitalTrust || null,
         deanery_region: deaneryRegion || null,
-        min_year_of_study: minYearOfStudy || null,
-        required_skills: requiredSkills.length ? requiredSkills : null,
+        min_year_of_study: minYearOfStudy,
+        required_skills: requiredSkills,
         preferred_skills: preferredSkills.length ? preferredSkills : null,
-        experience_level: experienceLevel || null,
-        estimated_commitment: estimatedCommitment || null,
+        experience_level: experienceLevel,
+        estimated_commitment: estimatedCommitment,
         deadline: deadline || null,
       })
       .select("id")
@@ -152,135 +163,154 @@ export default function PostForm() {
         </div>
       </div>
 
-      <button
-        type="button"
-        onClick={() => setShowMoreDetail((v) => !v)}
-        className="text-[13px] font-[510] text-mist underline hover:text-paper"
-      >
-        {showMoreDetail ? "Hide extra detail" : "Add more detail (optional)"}
-      </button>
+      <div className="rounded-cards bg-carbon p-6 shadow-subtle space-y-4">
+        <p className="text-caption text-ash">
+          The more you specify here, the better a student can judge whether this is right for
+          them — and the more accurately we can match them against it.
+        </p>
 
-      {showMoreDetail && (
-        <div className="rounded-cards bg-carbon p-6 shadow-subtle space-y-4">
-          <p className="text-caption text-ash">
-            Everything here is optional — specify as much or as little as you want. Students will
-            see whichever fields you fill in.
-          </p>
+        <div>
+          <label className="block text-body-sm text-mist">Where will this be done?</label>
+          <div className="mt-2 flex gap-2">
+            <button
+              type="button"
+              onClick={() => setIsRemote(false)}
+              className={`rounded-pills border px-3 py-[7px] text-[13px] transition-colors ${
+                !isRemote ? "border-acid-lime bg-acid-lime/10 text-paper" : "border-graphite text-mist hover:border-smoke"
+              }`}
+            >
+              In person
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsRemote(true)}
+              className={`rounded-pills border px-3 py-[7px] text-[13px] transition-colors ${
+                isRemote ? "border-acid-lime bg-acid-lime/10 text-paper" : "border-graphite text-mist hover:border-smoke"
+              }`}
+            >
+              Remote / virtual
+            </button>
+          </div>
+        </div>
 
+        <div>
+          <label className="block text-body-sm text-mist">Specialty</label>
+          <select className={INPUT_CLASS} value={specialty} onChange={(e) => setSpecialty(e.target.value)}>
+            <option value="" className="bg-carbon">
+              Not specified
+            </option>
+            {SPECIALTY_OPTIONS.map((s) => (
+              <option key={s} value={s} className="bg-carbon">
+                {s}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label className="block text-body-sm text-mist">Specialty</label>
-            <select className={INPUT_CLASS} value={specialty} onChange={(e) => setSpecialty(e.target.value)}>
+            <label className="block text-body-sm text-mist">
+              Hospital / trust{!isRemote && <span className="text-coral-red"> *</span>}
+            </label>
+            <input
+              type="text"
+              required={!isRemote}
+              value={hospitalTrust}
+              onChange={(e) => setHospitalTrust(e.target.value)}
+              placeholder={isRemote ? "Optional for remote work" : "e.g. St Mary's Hospital"}
+              className={INPUT_CLASS}
+            />
+          </div>
+          <div>
+            <label className="block text-body-sm text-mist">Deanery / region</label>
+            <select className={INPUT_CLASS} value={deaneryRegion} onChange={(e) => setDeaneryRegion(e.target.value)}>
               <option value="" className="bg-carbon">
                 Not specified
               </option>
-              {SPECIALTY_OPTIONS.map((s) => (
-                <option key={s} value={s} className="bg-carbon">
-                  {s}
+              {UK_DEANERIES.map((r) => (
+                <option key={r} value={r} className="bg-carbon">
+                  {r}
                 </option>
               ))}
             </select>
           </div>
+        </div>
 
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div>
-              <label className="block text-body-sm text-mist">Hospital / trust</label>
-              <input
-                type="text"
-                value={hospitalTrust}
-                onChange={(e) => setHospitalTrust(e.target.value)}
-                placeholder="e.g. St Mary's Hospital"
-                className={INPUT_CLASS}
-              />
-            </div>
-            <div>
-              <label className="block text-body-sm text-mist">Deanery / region</label>
-              <select className={INPUT_CLASS} value={deaneryRegion} onChange={(e) => setDeaneryRegion(e.target.value)}>
-                <option value="" className="bg-carbon">
-                  Not specified
-                </option>
-                {UK_DEANERIES.map((r) => (
-                  <option key={r} value={r} className="bg-carbon">
-                    {r}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
+        <div>
+          <label className="block text-body-sm text-mist">Minimum year / stage *</label>
+          <input
+            type="text"
+            required
+            value={minYearOfStudy}
+            onChange={(e) => setMinYearOfStudy(e.target.value)}
+            placeholder="e.g. 3rd year, or F1+"
+            className={INPUT_CLASS}
+          />
+        </div>
 
-          <div>
-            <label className="block text-body-sm text-mist">Minimum year / stage</label>
-            <input
-              type="text"
-              value={minYearOfStudy}
-              onChange={(e) => setMinYearOfStudy(e.target.value)}
-              placeholder="e.g. 3rd year, or F1+ — leave blank for no requirement"
-              className={INPUT_CLASS}
-            />
-          </div>
+        <div>
+          <label className="block text-body-sm text-mist">Required skills *</label>
+          <p className="mt-0.5 text-caption text-ash">
+            Pick at least one — what a student truly can&apos;t do the task without.
+          </p>
+          <SkillChips selected={requiredSkills} onToggle={(s) => toggleSkill(requiredSkills, setRequiredSkills, s)} />
+        </div>
 
-          <div>
-            <label className="block text-body-sm text-mist">Required skills</label>
-            <p className="mt-0.5 text-caption text-ash">
-              Only pick what a student truly can&apos;t do the task without — every one you add
-              filters out otherwise-good applicants.
-            </p>
-            <SkillChips selected={requiredSkills} onToggle={(s) => toggleSkill(requiredSkills, setRequiredSkills, s)} />
-          </div>
+        <div>
+          <label className="block text-body-sm text-mist">Preferred skills</label>
+          <p className="mt-0.5 text-caption text-ash">Nice-to-haves — these boost match ranking but don&apos;t exclude anyone.</p>
+          <SkillChips selected={preferredSkills} onToggle={(s) => toggleSkill(preferredSkills, setPreferredSkills, s)} />
+        </div>
 
-          <div>
-            <label className="block text-body-sm text-mist">Preferred skills</label>
-            <p className="mt-0.5 text-caption text-ash">Nice-to-haves — these boost match ranking but don&apos;t exclude anyone.</p>
-            <SkillChips selected={preferredSkills} onToggle={(s) => toggleSkill(preferredSkills, setPreferredSkills, s)} />
-          </div>
-
-          <div>
-            <label className="block text-body-sm text-mist">Experience level</label>
-            <select
-              className={INPUT_CLASS}
-              value={experienceLevel}
-              onChange={(e) => setExperienceLevel(e.target.value as ExperienceLevel | "")}
-            >
-              <option value="" className="bg-carbon">
-                Not specified
+        <div>
+          <label className="block text-body-sm text-mist">Experience level *</label>
+          <select
+            required
+            className={INPUT_CLASS}
+            value={experienceLevel}
+            onChange={(e) => setExperienceLevel(e.target.value as ExperienceLevel | "")}
+          >
+            <option value="" className="bg-carbon" disabled>
+              Select one
+            </option>
+            {EXPERIENCE_LEVEL_OPTIONS.map((o) => (
+              <option key={o.value} value={o.value} className="bg-carbon">
+                {o.label}
               </option>
-              {EXPERIENCE_LEVEL_OPTIONS.map((o) => (
+            ))}
+          </select>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div>
+            <label className="block text-body-sm text-mist">Estimated commitment *</label>
+            <select
+              required
+              className={INPUT_CLASS}
+              value={estimatedCommitment}
+              onChange={(e) => setEstimatedCommitment(e.target.value as AvailabilityHours | "")}
+            >
+              <option value="" className="bg-carbon" disabled>
+                Select one
+              </option>
+              {AVAILABILITY_OPTIONS.map((o) => (
                 <option key={o.value} value={o.value} className="bg-carbon">
                   {o.label}
                 </option>
               ))}
             </select>
           </div>
-
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div>
-              <label className="block text-body-sm text-mist">Estimated commitment</label>
-              <select
-                className={INPUT_CLASS}
-                value={estimatedCommitment}
-                onChange={(e) => setEstimatedCommitment(e.target.value as AvailabilityHours | "")}
-              >
-                <option value="" className="bg-carbon">
-                  Not specified
-                </option>
-                {AVAILABILITY_OPTIONS.map((o) => (
-                  <option key={o.value} value={o.value} className="bg-carbon">
-                    {o.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-body-sm text-mist">Deadline to apply</label>
-              <input
-                type="date"
-                value={deadline}
-                onChange={(e) => setDeadline(e.target.value)}
-                className={INPUT_CLASS}
-              />
-            </div>
+          <div>
+            <label className="block text-body-sm text-mist">Deadline to apply</label>
+            <input
+              type="date"
+              value={deadline}
+              onChange={(e) => setDeadline(e.target.value)}
+              className={INPUT_CLASS}
+            />
           </div>
         </div>
-      )}
+      </div>
 
       {error && (
         <div className="rounded-inputs bg-coral-red/10 p-3 text-body-sm text-coral-red shadow-[0_0_0_0.5px_var(--color-coral-red)_inset]">

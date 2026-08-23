@@ -19,6 +19,19 @@ export const SPECIALTY_TRAINING_YEARS = ["Year 1", "Year 2", "Year 3", "Year 4",
 
 export const MED_SCHOOL_YEARS = ["1", "2", "3", "4", "5", "Intercalating"];
 
+const MED_SCHOOL_YEAR_LABELS: Record<string, string> = {
+  "1": "First year",
+  "2": "Second year",
+  "3": "Third year",
+  "4": "Fourth year",
+  "5": "Fifth year",
+  Intercalating: "Intercalating",
+};
+
+export function medSchoolYearLabel(value: string): string {
+  return MED_SCHOOL_YEAR_LABELS[value] ?? value;
+}
+
 export type OnboardingRole = {
   value: "medical_student" | "doctor_applicant" | "consultant_registrar";
   label: string;

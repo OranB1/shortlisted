@@ -5,13 +5,16 @@ import { useRouter } from "next/navigation";
 import type { User } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/client";
 import { TASK_TYPE_OPTIONS, QI_EXPERIENCE_OPTIONS, type Skill } from "@/lib/data/marketplace-options";
+import { medSchoolYearLabel } from "@/lib/data/onboarding-options";
 import { computeMatch, type MatchProfile } from "@/lib/marketplace";
 import type { Tables } from "@/lib/supabase/database.types";
 
 type Opportunity = Tables<"opportunities">;
 type ApplicantProfile = {
   full_name: string | null;
-  bio: string | null;
+  about_motivation: string | null;
+  about_experience: string | null;
+  about_goals: string | null;
   avatar_url: string | null;
   cv_url: string | null;
   cv_filename: string | null;
@@ -114,7 +117,7 @@ export default function MyPostings() {
       const { data: profiles } = await supabase
         .from("profiles")
         .select(
-          "id, full_name, bio, avatar_url, cv_url, cv_filename, med_school, target_specialty, current_specialty, hospital_trust, preferred_region, year_of_study, grade, skills, qi_experience, research_experience, availability_hours"
+          "id, full_name, about_motivation, about_experience, about_goals, avatar_url, cv_url, cv_filename, med_school, target_specialty, current_specialty, hospital_trust, preferred_region, year_of_study, grade, skills, qi_experience, research_experience, availability_hours"
         )
         .in("id", applicantIds);
 
@@ -172,6 +175,7 @@ export default function MyPostings() {
             <p className="font-[510] text-paper">{p.title}</p>
             <p className="mt-1 text-caption text-fog">
               {TASK_TYPE_OPTIONS.find((t) => t.value === p.task_type)?.label ?? p.task_type} · {p.status}
+              {p.is_remote && " · Remote"}
             </p>
           </button>
         ))}
@@ -216,7 +220,7 @@ export default function MyPostings() {
                           )}
                         </div>
                         <p className="text-caption text-fog">
-                          {[a.applicantProfile?.med_school, a.applicantProfile?.year_of_study && `Year ${a.applicantProfile.year_of_study}`, a.applicantProfile?.target_specialty]
+                          {[a.applicantProfile?.med_school, a.applicantProfile?.year_of_study && medSchoolYearLabel(a.applicantProfile.year_of_study), a.applicantProfile?.target_specialty]
                             .filter(Boolean)
                             .join(" · ")}
                         </p>
@@ -232,7 +236,28 @@ export default function MyPostings() {
                     </span>
                   </div>
 
-                  {a.applicantProfile?.bio && <p className="mt-3 text-body-sm text-mist">{a.applicantProfile.bio}</p>}
+                  {(a.applicantProfile?.about_motivation || a.applicantProfile?.about_experience || a.applicantProfile?.about_goals) && (
+                    <div className="mt-3 space-y-2 border-t-[0.5px] border-graphite pt-3">
+                      {a.applicantProfile?.about_motivation && (
+                        <div>
+                          <p className="text-label text-ash">Why this interests them</p>
+                          <p className="text-body-sm text-mist">{a.applicantProfile.about_motivation}</p>
+                        </div>
+                      )}
+                      {a.applicantProfile?.about_experience && (
+                        <div>
+                          <p className="text-label text-ash">Relevant experience</p>
+                          <p className="text-body-sm text-mist">{a.applicantProfile.about_experience}</p>
+                        </div>
+                      )}
+                      {a.applicantProfile?.about_goals && (
+                        <div>
+                          <p className="text-label text-ash">What they&apos;re hoping to get out of it</p>
+                          <p className="text-body-sm text-mist">{a.applicantProfile.about_goals}</p>
+                        </div>
+                      )}
+                    </div>
+                  )}
                   {a.cover_note && (
                     <p className="mt-2 rounded-inputs bg-black/[0.02] p-3 text-body-sm text-mist">{a.cover_note}</p>
                   )}

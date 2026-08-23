@@ -40,6 +40,7 @@ export default function MarketplaceBrowser() {
   const [taskTypeFilter, setTaskTypeFilter] = useState<TaskType | "">("");
   const [restrictToPartners, setRestrictToPartners] = useState(true);
   const [beginnerFriendlyOnly, setBeginnerFriendlyOnly] = useState(false);
+  const [locationFilter, setLocationFilter] = useState<"all" | "near_me" | "remote">("all");
 
   const [coverNote, setCoverNote] = useState("");
   const [applying, setApplying] = useState(false);
@@ -111,9 +112,27 @@ export default function MarketplaceBrowser() {
         if (!onList) return false;
       }
       if (beginnerFriendlyOnly && o.experience_level !== "no_experience_needed") return false;
+      if (locationFilter === "remote" && !o.is_remote) return false;
+      if (locationFilter === "near_me") {
+        if (o.is_remote) return false;
+        const trustMatch =
+          !!o.hospital_trust && !!profile.hospitalTrust && profile.hospitalTrust.toLowerCase().includes(o.hospital_trust.toLowerCase());
+        const regionMatch = !!o.deanery_region && o.deanery_region === profile.preferredRegion;
+        if (!trustMatch && !regionMatch) return false;
+      }
       return true;
     });
-  }, [opportunities, taskTypeFilter, restrictToPartners, hasPartnershipData, partneredHospitals, beginnerFriendlyOnly]);
+  }, [
+    opportunities,
+    taskTypeFilter,
+    restrictToPartners,
+    hasPartnershipData,
+    partneredHospitals,
+    beginnerFriendlyOnly,
+    locationFilter,
+    profile.hospitalTrust,
+    profile.preferredRegion,
+  ]);
 
   const selected = filtered.find((o) => o.id === selectedId) ?? filtered[0] ?? null;
   const matchByOpportunity = useMemo(() => {
@@ -165,6 +184,16 @@ export default function MarketplaceBrowser() {
           ))}
         </select>
 
+        <select
+          className={INPUT_CLASS}
+          value={locationFilter}
+          onChange={(e) => setLocationFilter(e.target.value as "all" | "near_me" | "remote")}
+        >
+          <option value="all" className="bg-carbon">All locations</option>
+          <option value="near_me" className="bg-carbon">Near me</option>
+          <option value="remote" className="bg-carbon">Remote / virtual only</option>
+        </select>
+
         {hasPartnershipData && (
           <label className="flex cursor-pointer items-center gap-2 text-[13px] text-mist">
             <input
@@ -212,7 +241,9 @@ export default function MarketplaceBrowser() {
                     </span>
                   )}
                 </div>
-                <p className="mt-1 text-caption text-fog">{o.hospital_trust ?? "Location not specified"}</p>
+                <p className="mt-1 text-caption text-fog">
+                  {o.is_remote ? "Remote / virtual" : o.hospital_trust ?? "Location not specified"}
+                </p>
                 <div className="mt-2 flex flex-wrap gap-1">
                   <span className="rounded-badges bg-black/[0.045] px-[6px] text-label text-fog">
                     {TASK_TYPE_OPTIONS.find((t) => t.value === o.task_type)?.label ?? o.task_type}
@@ -228,7 +259,9 @@ export default function MarketplaceBrowser() {
           {selected && (
             <div className="h-fit rounded-cards bg-carbon p-6 shadow-subtle">
               <h2 className="text-[20px] font-[510] tracking-[-0.24px] text-paper">{selected.title}</h2>
-              <p className="mt-1 text-body-sm text-fog">{selected.hospital_trust ?? "Location not specified"}</p>
+              <p className="mt-1 text-body-sm text-fog">
+                {selected.is_remote ? "Remote / virtual" : selected.hospital_trust ?? "Location not specified"}
+              </p>
 
               <p className="mt-4 whitespace-pre-wrap text-body-sm text-mist">{selected.description}</p>
 

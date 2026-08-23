@@ -14,7 +14,9 @@ export default function ProfileForm() {
   const [message, setMessage] = useState<string | null>(null);
 
   const [fullName, setFullName] = useState("");
-  const [bio, setBio] = useState("");
+  const [aboutMotivation, setAboutMotivation] = useState("");
+  const [aboutExperience, setAboutExperience] = useState("");
+  const [aboutGoals, setAboutGoals] = useState("");
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [cvFilename, setCvFilename] = useState<string | null>(null);
   const [cvPath, setCvPath] = useState<string | null>(null);
@@ -36,13 +38,15 @@ export default function ProfileForm() {
 
       const { data: profile } = await supabase
         .from("profiles")
-        .select("full_name, bio, avatar_url, cv_url, cv_filename, cv_uploaded_at")
+        .select("full_name, about_motivation, about_experience, about_goals, avatar_url, cv_url, cv_filename, cv_uploaded_at")
         .eq("id", currentUser.id)
         .maybeSingle();
 
       if (profile) {
         setFullName(profile.full_name ?? "");
-        setBio(profile.bio ?? "");
+        setAboutMotivation(profile.about_motivation ?? "");
+        setAboutExperience(profile.about_experience ?? "");
+        setAboutGoals(profile.about_goals ?? "");
         setAvatarUrl(profile.avatar_url);
         setCvPath(profile.cv_url);
         setCvFilename(profile.cv_filename);
@@ -114,13 +118,19 @@ export default function ProfileForm() {
     setMessage("CV uploaded.");
   }
 
-  async function handleSaveBio() {
+  async function handleSaveAbout(field: "about_motivation" | "about_experience" | "about_goals", value: string) {
     if (!user) return;
     setSaving(true);
     setMessage(null);
-    await supabase.from("profiles").update({ bio }).eq("id", user.id);
+    const update =
+      field === "about_motivation"
+        ? { about_motivation: value }
+        : field === "about_experience"
+          ? { about_experience: value }
+          : { about_goals: value };
+    await supabase.from("profiles").update(update).eq("id", user.id);
     setSaving(false);
-    setMessage("Bio saved.");
+    setMessage("Saved.");
   }
 
   async function handleSaveName() {
@@ -187,16 +197,49 @@ export default function ProfileForm() {
         </div>
       </div>
 
-      <div className="rounded-cards bg-carbon p-6 shadow-subtle">
-        <label className="block text-body-sm text-mist">About you</label>
-        <textarea
-          value={bio}
-          onChange={(e) => setBio(e.target.value)}
-          onBlur={handleSaveBio}
-          rows={4}
-          placeholder="A short description posters will see when you apply — your interests, what you're looking for, relevant experience."
-          className="mt-1 w-full rounded-inputs border border-graphite bg-black/[0.025] px-[14px] py-[12px] text-[14px] text-mist focus:border-mist focus:outline-none"
-        />
+      <div className="rounded-cards bg-carbon p-6 shadow-subtle space-y-4">
+        <div>
+          <p className="text-body-sm text-mist">About you</p>
+          <p className="mt-0.5 text-caption text-ash">
+            Posters see this when you apply — answering all three helps them compare applicants fairly.
+          </p>
+        </div>
+
+        <div>
+          <label className="block text-caption text-ash">What draws you to this specialty / type of work?</label>
+          <textarea
+            value={aboutMotivation}
+            onChange={(e) => setAboutMotivation(e.target.value)}
+            onBlur={() => handleSaveAbout("about_motivation", aboutMotivation)}
+            rows={2}
+            placeholder="e.g. what's pulling you toward this area, or why you want to build this skill"
+            className="mt-1 w-full rounded-inputs border border-graphite bg-black/[0.025] px-[14px] py-[12px] text-[14px] text-mist focus:border-mist focus:outline-none"
+          />
+        </div>
+
+        <div>
+          <label className="block text-caption text-ash">Relevant experience so far</label>
+          <textarea
+            value={aboutExperience}
+            onChange={(e) => setAboutExperience(e.target.value)}
+            onBlur={() => handleSaveAbout("about_experience", aboutExperience)}
+            rows={2}
+            placeholder="e.g. audits, QIPs, research, or anything else relevant — even if informal"
+            className="mt-1 w-full rounded-inputs border border-graphite bg-black/[0.025] px-[14px] py-[12px] text-[14px] text-mist focus:border-mist focus:outline-none"
+          />
+        </div>
+
+        <div>
+          <label className="block text-caption text-ash">What are you hoping to get out of it?</label>
+          <textarea
+            value={aboutGoals}
+            onChange={(e) => setAboutGoals(e.target.value)}
+            onBlur={() => handleSaveAbout("about_goals", aboutGoals)}
+            rows={2}
+            placeholder="e.g. a specific portfolio point, co-authorship, or just hands-on experience"
+            className="mt-1 w-full rounded-inputs border border-graphite bg-black/[0.025] px-[14px] py-[12px] text-[14px] text-mist focus:border-mist focus:outline-none"
+          />
+        </div>
       </div>
 
       <div className="rounded-cards bg-carbon p-6 shadow-subtle">

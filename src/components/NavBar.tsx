@@ -50,6 +50,9 @@ export default async function NavBar() {
 
         {user ? (
           <div className="flex items-center gap-4 text-[14px]">
+            <Link href="/marketplace/applications" className="text-mist transition-colors hover:text-paper">
+              My applications
+            </Link>
             <Link href="/profile" className="text-mist transition-colors hover:text-paper">
               Profile
             </Link>

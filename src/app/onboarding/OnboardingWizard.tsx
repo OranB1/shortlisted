@@ -22,6 +22,7 @@ import {
   DOCTOR_STAGES,
   SPECIALTY_TRAINING_YEARS,
   MED_SCHOOL_YEARS,
+  medSchoolYearLabel,
   type OnboardingRole,
 } from "@/lib/data/onboarding-options";
 import { UK_DEANERIES } from "@/lib/data/deaneries";
@@ -357,7 +358,7 @@ export default function OnboardingWizard() {
                       center
                     >
                       <span className={form.yearOfStudy === y ? "text-paper" : "text-mist"}>
-                        {y === "Intercalating" ? y : `Year ${y}`}
+                        {medSchoolYearLabel(y)}
                       </span>
                     </OptionButton>
                   ))}
